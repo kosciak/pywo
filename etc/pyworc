@@ -1,4 +1,5 @@
 [SETTINGS]
+; Services settings
 keyboard_service = on
 modal_mode = off
 dbus_service = off
@@ -9,6 +10,9 @@ dbus_service = off
 ;     0/off/no/false - work only when NumLock is off
 numlock = ignore
 capslock = ignore
+
+; Use Xinerama to determine current screen geometry
+xinerama = no
 
 ; invert window gravity if it needs resizing (eg terminals with incremental 
 ; size change), works only for grid

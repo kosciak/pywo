@@ -24,8 +24,8 @@ import itertools
 import logging
 
 from pywo.core import Gravity, Geometry, Size, Position, WindowManager
-from pywo.actions import Action, TYPE_FILTER
-from pywo.actions.resizer import expand_window
+from pywo.actions import Action, get_current_workarea, TYPE_FILTER
+from pywo.actions.resizer import Expander
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
@@ -64,8 +64,10 @@ def absolute_position(workarea, position):
 
 def absolute_size(win, workarea, size, width, height):
     """Return Size containing sorted lists of absolute sizes."""
-    widths = width.width or size.width or float(win.width)/workarea.width
-    heights = height.height or size.height or float(win.height)/workarea.height
+    widths = width.width or size.width or \
+             float(win.width) / workarea.width
+    heights = height.height or size.height or \
+              float(win.height) / workarea.height
     try:
         widths = set([min([width * workarea.width, workarea.width]) 
                      for width in widths])
@@ -93,16 +95,19 @@ class GeometryCycler(object):
 
     """Cycle window geometry."""
 
-    def __init__(self, win, position, gravity, size, width, height, cycle):
+    def __init__(self, win, position, gravity, 
+                 size, width, height, cycle, xinerama):
         self.win_id = win.id
         self.args = (position, gravity, size, width, height) # TODO: remove me!?
         self.gravity = gravity
-        workarea = WM.workarea_geometry
+        workarea = get_current_workarea(win, xinerama)
         self.position = absolute_position(workarea, position)
         self.sizes = absolute_size(win, workarea, size, width, height)
         dummy = DummyWindow(win, self.position, self.sizes, self.gravity)
-        max_geo = expand_window(dummy, dummy.gravity,
-                                sticky=False, vertical_first=cycle)
+        expand = Expander(workarea=workarea, 
+                          adjacent=False, 
+                          vertical_first=cycle)
+        max_geo = expand(dummy, dummy.gravity)
         widths = []
         for width in self.sizes.width:
             if max_geo.width - width >= 0 and \
@@ -149,12 +154,13 @@ class GridAction(Action):
 
     def perform(self, win, position, gravity=None,
                 size=NO_SIZE, width=NO_SIZE, height=NO_SIZE,
-                invert_on_resize=True):
+                invert_on_resize=True, xinerama=False):
+        # TODO: Xinerama - use workarea_geometry, or nearest_screen_geometry
         win.reset()
         win.sync() 
         gravity = gravity or position
         geometry = self.get_geometry(win, position, gravity,
-                                     size, width, height, self.cycle)
+                                     size, width, height, self.cycle, xinerama)
         log.debug('Setting %s' % (geometry,))
         if invert_on_resize: 
             gravity = gravity.invert()
@@ -162,7 +168,7 @@ class GridAction(Action):
 
     @classmethod
     def get_geometry(cls, win, position, gravity, 
-                     size, width, height, cycle):
+                     size, width, height, cycle, xinerama):
         """Return new window geometry from GeometryCycler."""
         # TODO: this should be done in action_hook,
         #       here only existence of cycle should be checked
@@ -172,7 +178,7 @@ class GridAction(Action):
            not win.id == cls.__cycler.win_id or \
            not (position, gravity, size, width, height) == cls.__cycler.args:
             cls.__cycler = GeometryCycler(win, position, gravity, 
-                                          size, width, height, cycle)
+                                          size, width, height, cycle, xinerama)
         return cls.__cycler.next(cycle)
 
 

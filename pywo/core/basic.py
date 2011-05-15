@@ -267,7 +267,7 @@ class Geometry(Position, Size):
     #       int() !!!
 
     def __and__(self, other):
-        """Return the intersection with another geometry
+        """Return the intersection with another geometry.
 
         Returns None if the geometries don't intersect.  Returns a geometry
         with a zero width and/or height if the geometries touch each other but

@@ -18,185 +18,166 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""resizer.py provides methods used to find new geometry for window."""
+"""resizer.py - provides methods used to find new geometry for window."""
 
 import logging
-import operator
 
 from pywo.core import WindowManager
 from pywo.core import filters
+from pywo.actions.manipulate import ATTRGETTERS, GeometryWindow, InAxis
 
 
-__author__ = "Wojciech 'KosciaK' Pietrzok"
+__author__ = "Wojciech 'KosciaK' Pietrzok, Aron Griffis"
 
 
 log = logging.getLogger(__name__)
 
 WM = WindowManager()
 
-_ATTRGETTERS = {'x': (operator.attrgetter('x'),
-                      operator.attrgetter('x2'),
-                      operator.attrgetter('width')),
-                'y': (operator.attrgetter('y'),
-                      operator.attrgetter('y2'),
-                      operator.attrgetter('height'))}
 
 class Resizer(object):
 
-    """Resizer finds new geometry for window.
-
-    Class must be initialized with methods returning new window's edges.
-
+    """Abstract Resizer finds new geometry for window.
+    
+    NOTE: current and others are instances of GeometryWindow, 
+          that are subclass of both Window and Geometry
+    
     """
 
-    def __init__(self, top_left, bottom_right):
-        """top_left ,bottom_right - methods returning window's edge coordinate.
-        
-        These methods must accept arguments:
-        current - current window geometry
-        workarea - workarea geometry
-        windows - list of window's geometries
-        axis - name of axis ('x', or 'y')
-        sticky
-        insideout
-        
-        """
-        self.__top_left = top_left
-        self.__bottom_right = bottom_right
+    def __init__(self, workarea=None, adjacent=True, vertical_first=True):
+        self.workarea = workarea or WM.workarea_geometry
+        self.adjacent = adjacent
+        self.vertical_first = vertical_first
 
-    def __call__(self, win, direction, 
-                 sticky=True, insideout=False, vertical_first=True):
+    def __call__(self, win, direction):
         """Return new geometry for the window."""
-        #TODO: add limit? and use limit geometry instead of workarea?
-        current = win.geometry
-        workarea = WM.workarea_geometry
-        windows = [window.geometry for window 
-                                   in WM.windows(filters.STANDARD_ON_WORKAREA) 
-                                   if window.id != win.id]
+        return self.resize(win, direction)
+
+    def resize(self, win, direction):
+        """Return new geometry for the window."""
+        current = win.geometry & self.workarea
+        windows = WM.windows(filters.AND(filters.ExcludeId(win.id),
+                                         filters.STANDARD, 
+                                         filters.Desktop()))
+        others = [GeometryWindow(window) for window in windows]
         axis_order = [['x', 'y'], ['y', 'x']]
-        for axis in axis_order[vertical_first]:
-            self.__horizontal_vertical(axis, 
-                                       current, workarea, windows, 
-                                       direction, sticky, insideout)
+        for axis in axis_order[self.vertical_first]:
+            current = self.__resize_in_axis(axis, current, others, direction)
         return current
 
-    def __windows_in_axis(self, windows, current, 
-                          axis, sticky=True):
-        """Return geometries of windows placed in x or y axis to current window.
-
-        Return windows which at least one edge is between right/left or
-        top/bottom edge of current window, or current window is between
-        other window's edges.
-
-        """
-        xy, xy2, size = _ATTRGETTERS[axis]
-        return [other for other in windows
-                if (sticky and \
-                    (xy(current) <= xy(other) <= xy2(current) or \
-                     xy(current) <= xy2(other) <= xy2(current))) or \
-                   (xy(current) <= xy(other) < xy2(current) or \
-                    xy(current) < xy2(other) <= xy2(current)) or \
-                   xy(other) < xy(current) < xy2(other)]
-
-    def __horizontal_vertical(self, axis,
-                              current, workarea, windows,
-                              direction, sticky, insideout):
+    def __resize_in_axis(self, axis, current, others, direction):
         """Set left and right, or top and bottom edges of new window's position."""
-        xy, xy2, size = _ATTRGETTERS[axis]
-        # TODO: use only getattr instead of _ATTRGETTERS
+        xy, xy2, size = ATTRGETTERS[axis]
         opposite_axis = ['x', 'y'][axis == 'x']
         size = {'x':'width', 'y':'height'}[axis]
-        setattr(current, axis, 
-                max(xy(current), xy(workarea)))
-        setattr(current, size, 
-                min(xy2(current), xy2(workarea)) - xy(current))
-        in_axis = self.__windows_in_axis(windows, current, 
-                                         opposite_axis, sticky)
+        in_axis_filter = InAxis(current, opposite_axis, self.adjacent, 
+                                self.workarea)
+        others = filter(in_axis_filter, others)
         if (axis == 'x' and direction.is_left) or \
            (axis == 'y' and direction.is_top):
-            new_xy = self.__top_left(current, workarea, in_axis, 
-                                     axis, sticky, insideout)
+            new_xy = self.top_left(current, others, axis)
             setattr(current, size, xy2(current) - new_xy)
             setattr(current, axis, new_xy)
         if (axis == 'x' and direction.is_right) or \
            (axis == 'y' and direction.is_bottom):
-            new_xy2 = self.__bottom_right(current, workarea, in_axis, 
-                                          axis, sticky, insideout)
+            new_xy2 = self.bottom_right(current, others, axis)
             setattr(current, size, new_xy2 - xy(current))
+        return current
+
+    def top_left(self, current, others, axis):
+        """Return top or left edge of new window's position."""
+        raise NotImplementedError()
+
+    def bottom_right(self, current, others, axis):
+        """Return bottom or right edge of new window's position."""
+        raise NotImplementedError()
 
 
-def __top_left(current, workarea, windows, 
-               axis, sticky, insideout):
-    """Return top or left edge of new window's position."""
-    xy, xy2, size = _ATTRGETTERS[axis]
-    result = [xy(workarea)]
-    result += [xy2(other) for other in windows
-                         if xy2(other) < xy(current) or \
-                            (not sticky and xy2(other) <= xy(current))]
-    if sticky:
-        result += [xy(other) for other in windows
-                   if xy(workarea) < xy(other) < xy(current)]
-    if insideout:
-        result += [xy(other) - size(current) for other in windows
-                   if xy(current) <= xy(other) < xy2(current) and \
-                      xy(other) - size(current) > xy(workarea)]
-        result += [xy2(other) - size(current) for other in windows
-                   if xy(current) <= xy2(other) < xy2(current) and \
-                      xy2(other) - size(current) > xy(workarea)]
-    return max(result)
+class Expander(Resizer):
 
-def __bottom_right(current, workarea, windows, 
-                   axis, sticky, insideout):
-    """Return bottom or right edge of new window's position."""
-    xy, xy2, size = _ATTRGETTERS[axis]
-    result = [xy2(workarea)]
-    result += [xy(other) for other in windows
-               if xy(other) > xy2(current) or \
-                  (not sticky and xy(other) >= xy2(current))]
-    if sticky:
-        result += [xy2(other) for other in windows
-                   if xy2(current) < xy2(other) < xy2(workarea)]
-    if insideout:
-        result += [xy(other) + size(current) for other in windows
-                   if xy(current) < xy(other) <= xy2(current) and \
-                      xy(other) + size(current) < xy2(workarea)]
-        result += [xy2(other) + size(current) for other in windows
-                   if xy(current) < xy2(other) <= xy2(current) and \
-                      xy2(other) + size(current) < xy2(workarea)]
-    return min(result)
+    """Expands window in given direction."""
 
-expand_window = Resizer(__top_left, __bottom_right)
+    def __init__(self, workarea=None, adjacent=True, vertical_first=True, 
+                 both_sides=False):
+        Resizer.__init__(self, workarea, adjacent, vertical_first)
+        self.both_sides = both_sides
+
+    def top_left(self, current, others, axis):
+        """Return top or left edge of new window's position."""
+        xy, xy2, size = ATTRGETTERS[axis]
+        edges = [xy(self.workarea)]
+        for other in others:
+            if xy2(other) < xy(current) or \
+               (not self.adjacent and xy2(other) <= xy(current)):
+                edges.append(xy2(other))
+            if self.adjacent and \
+               xy(self.workarea) < xy(other) < xy(current):
+                edges.append(xy(other))
+            if self.both_sides and \
+               xy(current) <= xy(other) < xy2(current) and \
+               xy(other) - size(current) > xy(self.workarea):
+                edges.append(xy(other) - size(current))
+            if self.both_sides and \
+               xy(current) <= xy2(other) < xy2(current) and \
+               xy2(other) - size(current) > xy(self.workarea):
+                edges.append(xy2(other) - size(current))
+        return max(edges)
+
+    def bottom_right(self, current, others, axis):
+        """Return bottom or right edge of new window's position."""
+        xy, xy2, size = ATTRGETTERS[axis]
+        edges = [xy2(self.workarea)]
+        for other in others:
+            if xy(other) > xy2(current) or \
+               (not self.adjacent and xy(other) >= xy2(current)):
+                edges.append(xy(other))
+            if self.adjacent and \
+               xy2(current) < xy2(other) < xy2(self.workarea):
+                edges.append(xy2(other))
+            if self.both_sides and \
+               xy(current) < xy(other) <= xy2(current) and \
+               xy(other) + size(current) < xy2(self.workarea):
+                edges.append(xy(other) + size(current))
+            if self.both_sides and \
+               xy(current) < xy2(other) <= xy2(current) and \
+               xy2(other) + size(current) < xy2(self.workarea):
+                edges.append(xy2(other) + size(current))
+        return min(edges)
 
 
-def __ins_top_left(current, workarea, windows, 
-                   axis, sticky, insideout):
-    """Return top or left edge of new window's position.
-    
-    Use only coordinates inside current window.
-    
-    """
-    xy, xy2, size = _ATTRGETTERS[axis]
-    result = [xy(other) for other in windows
-               if xy(current) < xy(other) < xy2(current)]
-    result += [xy2(other) for other in windows
-               if xy(current) < xy2(other) < xy2(current)]
-    result = result or [xy(current)]
-    return min(result)
+class Shrinker(Resizer):
 
-def __ins_bottom_right(current, workarea, windows, 
-                       axis, sticky, insideout):
-    """Return bottom or right edge of new window's position.
-    
-    Use only coordinates inside current window.
-    
-    """
-    xy, xy2, size = _ATTRGETTERS[axis]
-    result = [xy(other) for other in windows
-              if xy(current) < xy(other) < xy2(current)]
-    result += [xy2(other) for other in windows
-               if xy(current) < xy2(other) < xy2(current)]
-    result = result or [xy2(current)]
-    return max(result)
+    """Shrinks window in given direction."""
 
-shrink_window = Resizer(__ins_top_left, __ins_bottom_right) 
+    @staticmethod
+    def __edges(current, others, axis):
+        """Return coordinates of other window edges."""
+        xy, xy2, size = ATTRGETTERS[axis]
+        edges = []
+        for other in others:
+            if xy(current) < xy(other) < xy2(current):
+                edges.append(xy(other))
+            if xy(current) < xy2(other) < xy2(current):
+                edges.append(xy2(other))
+        return edges
+
+    def top_left(self, current, others, axis):
+        """Return top or left edge of new window's position.
+        
+        Use only coordinates inside current window.
+        
+        """
+        xy, xy2, size = ATTRGETTERS[axis]
+        edges = self.__edges(current, others, axis) or [xy(current)]
+        return min(edges)
+
+    def bottom_right(self, current, others, axis):
+        """Return bottom or right edge of new window's position.
+        
+        Use only coordinates inside current window.
+        
+        """
+        xy, xy2, size = ATTRGETTERS[axis]
+        edges = self.__edges(current, others, axis) or [xy2(current)]
+        return max(edges)
 

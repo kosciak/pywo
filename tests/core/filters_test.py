@@ -118,17 +118,17 @@ class DesktopTests(FiltersTest):
         self.WM.set_desktop(0)
         self.assertWindows(filters.Desktop(), 
                            [self.desktop1_win, self.all_desktops_win])
-        self.assertWindows(filters.DESKTOP,
+        self.assertWindows(filters.Desktop(),
                            [self.desktop1_win, self.all_desktops_win])
         self.WM.set_desktop(1)
         self.assertWindows(filters.Desktop(), 
                            [self.desktop2_win, self.all_desktops_win])
-        self.assertWindows(filters.DESKTOP,
+        self.assertWindows(filters.Desktop(),
                            [self.desktop2_win, self.all_desktops_win])
         self.WM.set_desktop(0)
         self.assertWindows(filters.Desktop(), 
                            [self.desktop1_win, self.all_desktops_win])
-        self.assertWindows(filters.DESKTOP,
+        self.assertWindows(filters.Desktop(),
                            [self.desktop1_win, self.all_desktops_win])
 
     def test_selected(self):
@@ -221,16 +221,6 @@ class CombinedFiltersTests(FiltersTest):
                             self.desktop1_viewport2_win, 
                             self.desktop2_viewport1_win, 
                             self.desktop2_viewport2_win])
-        self.assertWindows(filters.NORMAL_ON_WORKAREA,
-                           [self.win, 
-                            self.sticky_win, 
-                            self.vert_maximized_win, self.horz_maximized_win, 
-                            self.above_win, self.below_win,
-                            self.desktop1_viewport1_win])
-        self.WM.set_desktop(1)
-        self.assertWindows(filters.NORMAL_ON_WORKAREA,
-                           [self.sticky_win, 
-                            self.desktop2_viewport1_win])
 
     def test_standard(self):
         self.assertWindows(filters.STANDARD,
@@ -245,15 +235,6 @@ class CombinedFiltersTests(FiltersTest):
                             self.desktop1_viewport2_win, 
                             self.desktop2_viewport1_win, 
                             self.desktop2_viewport2_win])
-        self.assertWindows(filters.STANDARD_ON_WORKAREA,
-                           [self.win, 
-                            self.dialog_win,
-                            self.utility_win,
-                            #self.dock_win,
-                            self.sticky_win, 
-                            self.vert_maximized_win, self.horz_maximized_win, 
-                            self.above_win, self.below_win,
-                            self.desktop1_viewport1_win])
 
 
 if __name__ == '__main__':

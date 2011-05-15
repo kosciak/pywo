@@ -28,7 +28,7 @@ class ExpandWindowTests(MockedXlibTests):
 
     def setUp(self):
         MockedXlibTests.setUp(self)
-        self.resize = resizer.expand_window
+        self.resize = resizer.Expander()
 
     def test_empty_desktop(self):
         geometry = self.win.geometry
@@ -101,7 +101,7 @@ class ShrinkWindowTests(MockedXlibTests):
 
     def setUp(self):
         MockedXlibTests.setUp(self)
-        self.resize = resizer.shrink_window
+        self.resize = resizer.Shrinker()
 
     def test_empty_desktop(self):
         geometry = self.win.geometry

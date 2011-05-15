@@ -97,31 +97,67 @@ class Desktop(object):
     """Return only windows on specified (or current) desktop."""
 
     def __init__(self, desktop=None):
-        self.desktop = desktop
+        self.desktop = desktop or WindowManager().desktop 
 
     def __call__(self, window):
-        desktop = self.desktop or WindowManager().desktop
         win_desktop = window.desktop
-        return win_desktop == desktop or \
+        return win_desktop == self.desktop or \
                win_desktop == Window.ALL_DESKTOPS
 
 
 class Workarea(Desktop):
 
-    """Return only windows on current workarea."""
+    """Return only windows on current workarea.
+    
+    NOTE: Overlap filter (combined with Desktop) should be used instead!
+    
+    """
 
     def __init__(self):
         Desktop.__init__(self)
+        self.workarea = WindowManager().workarea_geometry
 
     def __call__(self, window):
         if not Desktop.__call__(self, window):
             return False
-        workarea = WindowManager().workarea_geometry
         geometry = window.geometry
-        return geometry.x < workarea.x2 and \
-               geometry.x2 > workarea.x and \
-               geometry.y < workarea.y2 and \
-               geometry.y2 > workarea.y
+        return geometry.x < self.workarea.x2 and \
+               geometry.x2 > self.workarea.x and \
+               geometry.y < self.workarea.y2 and \
+               geometry.y2 > self.workarea.y
+
+
+class Overlap(object):
+
+    """Return windows that are inside (or are adjacent to) given geometry.
+    
+    NOTE: Combine with Desktop filter to get only windows on current desktop!
+    
+    """
+
+    def __init__(self, geometry, adjacent=False):
+        self.geometry = geometry
+        self.adjacent = adjacent
+
+    def __call__(self, window):
+        intersection = window.geometry & self.geometry
+        if not intersection:
+            return False
+        if not self.adjacent and \
+           not intersection.area:
+            return False
+        return True
+
+
+class ExcludeId(object):
+
+    """Return windows with id not in the exlcude list."""
+
+    def __init__(self, *exclude_ids):
+        self.exclude_ids = exclude_ids
+
+    def __call__(self, window):
+        return window.id not in self.exclude_ids
 
 
 class AND(object):
@@ -147,8 +183,4 @@ NORMAL_STATE = ExcludeState(State.MODAL, State.SHADED, State.HIDDEN,
                             State.MAXIMIZED, State.FULLSCREEN)
 NORMAL = AND(NORMAL_TYPE, NORMAL_STATE)
 STANDARD = AND(STANDARD_TYPE, NORMAL_STATE)
-DESKTOP = Desktop()
-WORKAREA = Workarea()
-NORMAL_ON_WORKAREA = AND(NORMAL_TYPE, NORMAL_STATE, WORKAREA)
-STANDARD_ON_WORKAREA = AND(STANDARD_TYPE, NORMAL_STATE, WORKAREA)
 

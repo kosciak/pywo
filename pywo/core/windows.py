@@ -780,7 +780,7 @@ class WindowManager(XObject):
     def nearest_screen_geometry(self, geometry):
         """Return geometry of the screen best matching the given rectangle.
         
-        Position is relative to desktop.
+        Position is relative to current viewport.
         
         """
         screens_by_intersection = ((screen & geometry, screen)

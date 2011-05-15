@@ -242,4 +242,10 @@ add_option('-V', '--vertical-first',
 add_option('-H', '--horizontal-first',
            action='store_false', dest='vertical_first')
 
+add_option('--xinerama',
+           action='store_true', dest='xinerama', default=False,
+           help='Use Xinerama to determine current screen area [default: %default]')
+add_option('--no-xinerama',
+           action='store_false', dest='xinerama')
+
 

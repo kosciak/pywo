@@ -23,8 +23,8 @@
 import logging
 
 from pywo.core import WindowManager
-from pywo.actions import register, TYPE_STATE_FILTER
-from pywo.actions.resizer import expand_window, shrink_window
+from pywo.actions import register, get_current_workarea, TYPE_STATE_FILTER
+from pywo.actions.resizer import Expander, Shrinker
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
@@ -36,34 +36,40 @@ WM = WindowManager()
 
 
 @register(name='expand', filter=TYPE_STATE_FILTER, unshade=True)
-def _expand(win, direction, vertical_first=True):
+def _expand(win, direction, vertical_first=True, xinerama=False):
     """Expand window in given direction."""
-    geometry = expand_window(win, direction, 
-                             sticky=(not direction.is_middle),
-                             vertical_first=vertical_first)
+    workarea = get_current_workarea(win, xinerama)
+    expand = Expander(workarea=workarea, 
+                      adjacent=not direction.is_middle,
+                      vertical_first=vertical_first)
+    geometry = expand(win, direction)
     log.debug('Setting %s' % (geometry,))
     win.set_geometry(geometry, direction)
 
 
 @register(name='shrink', filter=TYPE_STATE_FILTER, unshade=True)
-def _shrink(win, direction, vertical_first=True):
+def _shrink(win, direction, vertical_first=True, xinerama=False):
     """Shrink window in given direction."""
     if direction.is_middle:
-        # NOTE: This is not working correctly witn is_middle anyway
+        # NOTE: This is not working correctly with is_middle anyway
         return
-    geometry = shrink_window(win, direction.invert(), 
-                             vertical_first=vertical_first)
+    workarea = get_current_workarea(win, xinerama)
+    shrink = Shrinker(workarea=workarea, 
+                      vertical_first=vertical_first)
+    geometry = shrink(win, direction.invert())
     log.debug('Setting %s' % (geometry,))
     win.set_geometry(geometry, direction)
 
 
 @register(name='float', filter=TYPE_STATE_FILTER, unshade=True)
-def _move(win, direction, vertical_first=True):
+def _move(win, direction, vertical_first=True, xinerama=False):
     """Move window in given direction."""
-    border = expand_window(win, direction, 
-                           sticky=(not direction.is_middle), 
-                           insideout=(not direction.is_middle),
-                           vertical_first=vertical_first)
+    workarea = get_current_workarea(win, xinerama)
+    expand = Expander(workarea=workarea, 
+                      adjacent=not direction.is_middle, 
+                      both_sides=not direction.is_middle,
+                      vertical_first=vertical_first)
+    border = expand(win, direction)
     geometry = win.geometry
     geometry.width = min(border.width, geometry.width)
     geometry.height = min(border.height, geometry.height)
@@ -75,10 +81,10 @@ def _move(win, direction, vertical_first=True):
 
 
 @register(name='put', filter=TYPE_STATE_FILTER, unshade=True)
-def _put(win, position, gravity=None):
+def _put(win, position, gravity=None, xinerama=False):
     """Put window in given position (without resizing)."""
     gravity = gravity or position
-    workarea = WM.workarea_geometry
+    workarea = get_current_workarea(win, xinerama)
     geometry = win.geometry
     x = workarea.x + workarea.width * position.x
     y = workarea.y + workarea.height * position.y

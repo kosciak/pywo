@@ -115,7 +115,7 @@ class Action(object):
     def __call__(self, win, **kwargs):
         """Perform action on window and with given arguments."""
         log.info('%s: win=%s, kwargs={%s}' % 
-                 (self, win,
+                 (self.name, win,
                  ', '.join(["'%s':%s" % (key, value) 
                             for key, value in kwargs.items()])))
         self.check_filter(win)
@@ -181,6 +181,14 @@ def register(name, filter=filters.ALL_FILTER, unshade=False):
     return register_action
 
 
+def get_current_workarea(window, xinerama):
+    """Return geometry of the workarea or nearest screen."""
+    if xinerama:
+        return WM.nearest_screen_geometry(window.geometry)
+    else:
+        return WM.workarea_geometry
+
+
 @register(name='debug')
 def _debug_info(win):
     """Print debug info about Window Manager, and current Window."""
@@ -193,7 +201,6 @@ def _debug_info(win):
     log.info('Old geometry=%s' % old_geometry)
     log.info('New geometry=%s' % win.geometry)
     log.info('-= End of debug output =-')
-
 
 
 def perform(options, args, config, win_id=0):
