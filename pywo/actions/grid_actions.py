@@ -25,7 +25,7 @@ import logging
 
 from pywo.core import Gravity, Geometry, Size, Position, WindowManager
 from pywo.actions import Action, get_current_workarea, TYPE_FILTER
-from pywo.actions.resizer import Expander
+from pywo.actions.manipulate import Expander
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"

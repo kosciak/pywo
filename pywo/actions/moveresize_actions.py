@@ -24,7 +24,7 @@ import logging
 
 from pywo.core import WindowManager
 from pywo.actions import register, get_current_workarea, TYPE_STATE_FILTER
-from pywo.actions.resizer import Expander, Shrinker
+from pywo.actions.manipulate import Expander, Shrinker, Floater
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
@@ -41,6 +41,7 @@ def _expand(win, direction, vertical_first=True, xinerama=False):
     workarea = get_current_workarea(win, xinerama)
     expand = Expander(workarea=workarea, 
                       adjacent=not direction.is_middle,
+                      both_sides=not direction.is_middle,
                       vertical_first=vertical_first)
     geometry = expand(win, direction)
     log.debug('Setting %s' % (geometry,))
@@ -65,10 +66,10 @@ def _shrink(win, direction, vertical_first=True, xinerama=False):
 def _move(win, direction, vertical_first=True, xinerama=False):
     """Move window in given direction."""
     workarea = get_current_workarea(win, xinerama)
-    expand = Expander(workarea=workarea, 
-                      adjacent=not direction.is_middle, 
-                      both_sides=not direction.is_middle,
-                      vertical_first=vertical_first)
+    expand = Floater(workarea=workarea, 
+                     adjacent=not direction.is_middle, 
+                     both_sides=not direction.is_middle,
+                     vertical_first=vertical_first)
     border = expand(win, direction)
     geometry = win.geometry
     geometry.width = min(border.width, geometry.width)
