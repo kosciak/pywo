@@ -1,0 +1,72 @@
+; Example of PyWO configuration file for use with keyboards without numpad
+
+[SETTINGS]
+keyboard_service = on
+modal_mode = on
+dbus_service = on
+
+; 1/on/yes/true - work only when NumLock is on
+; ignore - ignore NumLock state (works when on and off)
+; 0/off/no/false - work only when NumLock is off
+numlock = ignore
+capslock = ignore
+
+; invert window gravity if it needs resizing (eg terminals with incremental 
+; size change), works only for grid
+invert_on_resize = yes
+
+; if true try expandig in vertical axis first
+vertical_first = yes
+
+; grid_2x2, grid_3x2, grid_3x3, custom
+layout = grid_3x3
+
+; list of ignored actions (separate with ', ')
+ignore_actions = 
+
+[KEYS]
+; pywo_mode - shortcut to enter "PyWO mode" if modal_mode is on
+pywo_mode = Alt-Shift-colon
+; section/point-name =  key
+top-left = y
+top = k
+top-right = u
+left = h
+middle = colon
+right = l
+bottom-right = m
+bottom = j
+bottom-left = n
+
+; key modifiers (Alt, Shift, Ctrl, Super) for actions 
+float = Alt
+expand = Shift
+shrink = Alt-Shift
+put = Alt-Ctrl
+; grid - cycle widths
+grid_width = Ctrl
+; grid - cycle heights
+grid_height = Ctrl-Shift
+
+switch = Alt-bracketright
+cycle = Alt-bracketleft
+
+iconify = Alt-quotedbl
+maximize = Alt-plus
+maximize_vert = Ctrl-Shift-plus
+maximize_horz = Alt-Ctrl-plus
+fullscreen = Alt-Ctrl-Shift-plus
+shade = Alt-Shift-quotedbl
+sticky = Alt-asterisk
+above = 
+below = 
+activate = 
+close = 
+
+; exit PyWo
+exit = Ctrl-Shift-Alt-Q
+; reload configuration file
+reload = Alt-R
+; print info for current window
+debug = Alt-I
+
