@@ -178,7 +178,7 @@ class XObject(object):
         Ungrab key alone, with CapsLock on and/or with NumLock on.
 
         """
-        if numlock in [0, 2] and capslock in [0, 1]:
+        if numlock in [0, 2] and capslock in [0, 2]:
             self._win.ungrab_key(keycode, modifiers)
         if numlock in [0, 2] and capslock in [1, 2]:
             self._win.ungrab_key(keycode, modifiers | X.LockMask)

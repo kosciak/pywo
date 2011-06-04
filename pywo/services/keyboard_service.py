@@ -134,8 +134,9 @@ class ModalKeyHandler(events.KeyHandler):
         log.debug('%s' % (event,))
         WM.scroll_lock_led(False)
         self.blink()
-        self.pywo_handler.ungrab_keys(WM)
-        self.escape_handler.ungrab_keys(WM)
+        #self.pywo_handler.ungrab_keys(WM)
+        #self.escape_handler.ungrab_keys(WM)
+        self.ungrab_keys(WM)
         self.in_pywo_mode = False
 
     def blink(self):
@@ -184,12 +185,15 @@ HANDLER = ModalKeyHandler()
 def setup(config):
     HANDLER.set_config(config)
 
+
 def start():
     log.info('Registering keyboard shortcuts')
     HANDLER.grab_keys(WM)
 
 
 def stop():
+    WM.scroll_lock_led(False)
+    WM.flush()
     HANDLER.ungrab_keys(WM)
     log.info('Keyboard shortcuts unregistered')
 
