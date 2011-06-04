@@ -22,7 +22,6 @@
 
 import logging
 
-from pywo.core import WindowManager
 from pywo.actions import register, get_current_workarea, TYPE_STATE_FILTER
 from pywo.actions.manipulate import Expander, Shrinker, Floater
 
@@ -31,8 +30,6 @@ __author__ = "Wojciech 'KosciaK' Pietrzok"
 
 
 log = logging.getLogger(__name__)
-
-WM = WindowManager()
 
 
 @register(name='expand', filter=TYPE_STATE_FILTER, unshade=True)
