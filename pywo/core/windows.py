@@ -605,6 +605,10 @@ class WindowManager(XObject):
         manager.update_type()
         return manager
 
+#    def __init__(self):
+#        XObject.__init__(self)
+#        self.update_type()
+
     @property
     def name(self):
         """Return window manager's name.

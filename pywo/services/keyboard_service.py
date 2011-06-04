@@ -123,6 +123,7 @@ class ModalKeyHandler(events.KeyHandler):
             self.normal_mode(event)
             return
         log.debug('%s' % (event,))
+        WM.scroll_lock_led(True)
         self.blink()
         self.pywo_handler.grab_keys(WM)
         self.escape_handler.grab_keys(WM)
@@ -131,6 +132,7 @@ class ModalKeyHandler(events.KeyHandler):
     def normal_mode(self, event):
         """Leave PyWO mode, enter normal mode."""
         log.debug('%s' % (event,))
+        WM.scroll_lock_led(False)
         self.blink()
         self.pywo_handler.ungrab_keys(WM)
         self.escape_handler.ungrab_keys(WM)

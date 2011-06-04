@@ -187,16 +187,6 @@ class XObject(object):
         if numlock in [1, 2] and capslock in [1, 2]:
             self._win.ungrab_key(keycode, modifiers | X.LockMask | X.Mod2Mask)
 
-    def draw_rectangle(self, x, y, width, height, line):
-        """Draw simple rectangle on screen."""
-        color = self.__DISPLAY.screen().black_pixel
-        gc = self.__root.create_gc(line_width=line,
-                                   join_style=X.JoinRound,
-                                   foreground=color,
-                                   function=X.GXinvert,
-                                   subwindow_mode=X.IncludeInferiors,)
-        self.__root.rectangle(gc, x, y, width, height)
-
     def _translate_coords(self, x, y):
         """Return translated coordinates.
         
@@ -297,6 +287,24 @@ class XObject(object):
         except AttributeError:
             root = cls.__DISPLAY.root
             return [Geometry(0, 0, root.screen_width, root.screen_height)]
+
+    def draw_rectangle(self, x, y, width, height, line):
+        """Draw simple rectangle on screen."""
+        color = self.__DISPLAY.screen().black_pixel
+        gc = self.__root.create_gc(line_width=line,
+                                   join_style=X.JoinRound,
+                                   foreground=color,
+                                   function=X.GXinvert,
+                                   subwindow_mode=X.IncludeInferiors,)
+        self.__root.rectangle(gc, x, y, width, height)
+
+    def scroll_lock_led(self, mode):
+        """Turn on/off ScrollLock LED."""
+        if mode:
+            led_mode = X.LedModeOn
+        else:
+            led_mode = X.LedModeOff
+        self.__DISPLAY.change_keyboard_control(led=3, led_mode=led_mode)
 
     @classmethod
     def flush(cls):
