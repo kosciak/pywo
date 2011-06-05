@@ -21,7 +21,6 @@
 """state_actions.py - PyWO actions - changing windows state."""
 
 import logging
-import time
 
 from pywo.actions import register, TYPE_FILTER, TYPE_STATE_FILTER
 from pywo.core import WindowManager, State, Mode

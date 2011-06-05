@@ -21,7 +21,6 @@
 """keyboard_service.py - provides keyboard shortcuts handling."""
 
 import logging
-import time
 
 from pywo import actions
 from pywo.core import WindowManager
@@ -73,7 +72,7 @@ class PywoModeKeyPressHandler(events.KeyHandler):
                     continue
                 for section in config.sections.values():
                     key = section.key
-                    if key and action.name not in section.ignored:
+                    if key and action.name not in section.ignored_actions:
                         try:
                             (mod, keycode) = WM.str2modifiers_keycode(mask, key)
                         except ValueError:
@@ -81,7 +80,7 @@ class PywoModeKeyPressHandler(events.KeyHandler):
                         self.mappings[(mod, keycode)] = (action, section)
             else:
                 key = config.keys.get(action.name)
-                if key and action not in config.ignored:
+                if key and action not in config.ignored_actions:
                     (mod, keycode) = WM.str2modifiers_keycode(key)
                     self.mappings[(mod, keycode)] = (action, None)
         self.keys = self.mappings.keys()
@@ -107,6 +106,11 @@ class ModalKeyHandler(events.KeyHandler):
         keys = [WM.str2modifiers_keycode('Escape')]
         self.escape_handler = events.KeyHandler(key_press=self.normal_mode,
                                                 keys=keys)
+        self.visual_bell = False
+        self.bell_color = 'white'
+        self.bell_width = 0
+        self.bell_duration = 0
+        self.scroll_lock_led = False
         if config:
             self.set_config(config)
 
@@ -122,8 +126,8 @@ class ModalKeyHandler(events.KeyHandler):
     def pywo_mode(self, event):
         """Enter PyWO mode.
 
-        To indicate entering into PyWO mode use visual bell, and 
-        turn on ScrollLock LED.
+        To indicate entering into PyWO mode use visual bell, 
+        and turn on ScrollLock LED.
         Press ESC to go back to normal mode.
         
         """

@@ -40,12 +40,13 @@ class _Section(object):
     def __init__(self, config, section, key):
         self.key = key
         data = dict(config._config.items(section))
-        self.ignored = set()
+        self.ignored_actions = set()
         if 'ignore_actions' in data:
-            self.ignored.update(data.get('ignore_actions', '').split(', '))
-        self.ignored.update(config.ignored)
-        if 'grid' in self.ignored:
-            self.ignored.update(['grid_width', 'grid_height'])
+            ignored_actions = data.get('ignore_actions', '').split(', ')
+            self.ignored_actions.update(ignored_actions)
+        self.ignored_actions.update(config.ignored_actions)
+        if 'grid' in self.ignored_actions:
+            self.ignored_actions.update(['grid_width', 'grid_height'])
 
         self.gravity = Gravity.parse(data.get('gravity', ''))
         self.direction = Gravity.parse(data.get('direction', ''))
@@ -71,10 +72,13 @@ class Config(object):
     def __init__(self, filename=''):
         self._config = ConfigParser()
         self.keys = {} # {'action_name': 'key', }
-        self.ignored = set()
+        self.ignored_actions = set()
         self.sections = {} # {section.name: section, }
         self.aliases = {} # {alias: section|action, }
         self.filename = filename
+        self.bell_color = 'white'
+        self.bell_duration = 0
+        self.bell_width = 0
         self.load(filename)
 
     def __parse_settings(self):
@@ -128,14 +132,14 @@ class Config(object):
                               'pywo', layout),
                  os.path.join(os.path.expanduser('~'), layout)])
             self._config.remove_option('SETTINGS', 'layout')
-        self.ignored = set()
+        self.ignored_actions = set()
         if self._config.has_option('SETTINGS', 'ignore_actions'):
             # Parse ignore_actions setting
-            ignored = self._config.get('SETTINGS', 'ignore_actions')
-            self.ignored = set(ignored.split(', '))
+            ignored_actions = self._config.get('SETTINGS', 'ignore_actions')
+            self.ignored_actions = set(ignored_actions.split(', '))
             self._config.remove_option('SETTINGS', 'ignore_actions')
-        if 'grid' in self.ignored:
-            self.ignored.update('grid_width', 'grid_height')
+        if 'grid' in self.ignored_actions:
+            self.ignored_actions.update(['grid_width', 'grid_height'])
         # Parse visual bell options
         self.bell_color = self._config.get('SETTINGS', 'bell_color')
         self.bell_duration = self._config.getfloat('SETTINGS', 'bell_duration')

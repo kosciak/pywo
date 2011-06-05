@@ -10,7 +10,7 @@ scroll_lock_led = on
 
 ; Visual bell settings
 ; bell_color - name of the color
-; List of color names: http://en.wikipedia.org/wiki/X11_color_names
+;   List of color names: http://en.wikipedia.org/wiki/X11_color_names
 ; bell_width - width in pixels
 ; bell_duration - value in seconds
 visual_bell = on
@@ -42,9 +42,11 @@ layout = grid_3x2
 ;ignore_actions = grid_height
 ignore_actions = 
 
+
 [KEYS]
 ; pywo_mode - shortcut to enter "PyWO mode" if modal_mode is on
 pywo_mode = 
+
 ; section/point-name =  key
 top-left = KP_7
 top = KP_8
@@ -61,9 +63,9 @@ float = Alt
 expand = Shift
 shrink = Alt-Shift
 put = Alt-Ctrl
-; grid - cycle widths
+; grid_width - cycle widths
 grid_width = Ctrl
-; grid - cycle heights
+; grid_height - cycle heights
 grid_height = Ctrl-Shift
 
 switch = Alt-KP_Divide
@@ -88,12 +90,14 @@ reload = Ctrl-Shift-Alt-R
 ; print debug info
 debug = Ctrl-Shift-Alt-I
 
+
 [ALIASES]
 ; List of aliases for actions and sections. 
 ; Alias names are case sensitive, action and section names are not.
 ; Examples:
 ; center = middle
 grid = grid_width
+
 
 ; Example of custom screen position definition:
 ;

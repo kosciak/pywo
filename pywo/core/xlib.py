@@ -340,7 +340,7 @@ class XObject(object):
 
 class OSDRectangle(object):
 
-    """On Screen Display rectanglei using SHAPE X Extenstion."""
+    """On Screen Display rectangle using SHAPE X Extenstion."""
 
     def __init__(self, display, geometry, color, line_width):
         self.display = display
@@ -362,6 +362,7 @@ class OSDRectangle(object):
         gc.free()
         self.window.shape_mask(shape.ShapeSet, shape.ShapeBounding, 
                                0, 0, pixmap) 
+
     def show(self):
         """Map OSDRectangle window."""
         self.window.map()
