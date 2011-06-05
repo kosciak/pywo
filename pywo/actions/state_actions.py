@@ -129,7 +129,7 @@ def _blink(win, bell_color, bell_width, bell_duration):
     desktop = win.desktop
     if desktop != wm.desktop:
         return
-    win.blink(bell_color, bell_width, bell_duration)
+    win.visual_bell(bell_color, bell_width, bell_duration)
 
 
 # TODO: new actions

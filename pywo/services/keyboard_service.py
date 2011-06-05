@@ -122,7 +122,8 @@ class ModalKeyHandler(events.KeyHandler):
     def pywo_mode(self, event):
         """Enter PyWO mode.
 
-        Blink to indicate entering "Pywo mode".
+        To indicate entering into PyWO mode use visual bell, and 
+        turn on ScrollLock LED.
         Press ESC to go back to normal mode.
         
         """
@@ -130,7 +131,7 @@ class ModalKeyHandler(events.KeyHandler):
         if self.scroll_lock_led:
             WM.scroll_lock_led(True)
         if self.visual_bell:
-            WM.blink(self.bell_color, self.bell_width, self.bell_duration)
+            WM.visual_bell(self.bell_color, self.bell_width, self.bell_duration)
         self.pywo_handler.grab_keys(WM)
         self.escape_handler.grab_keys(WM)
         self.in_pywo_mode = True
@@ -141,7 +142,7 @@ class ModalKeyHandler(events.KeyHandler):
         if self.scroll_lock_led:
             WM.scroll_lock_led(False)
         if self.visual_bell:
-            WM.blink(self.bell_color, self.bell_width, self.bell_duration)
+            WM.visual_bell(self.bell_color, self.bell_width, self.bell_duration)
         self.ungrab_keys(WM)
         self.in_pywo_mode = False
 

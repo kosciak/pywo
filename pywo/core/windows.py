@@ -526,7 +526,7 @@ class Window(XObject):
         mask = X.SubstructureRedirectMask
         self.send_event(data, event_type, mask)
 
-    def blink(self, color_name="red", line_width=4, duration=0.125):
+    def visual_bell(self, color_name="red", line_width=4, duration=0.125):
         """Show border around window."""
         #geo = self.geometry
         #self.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
@@ -839,7 +839,7 @@ class WindowManager(XObject):
             windows = self.__name_matcher(windows, match)
         return windows
 
-    def blink(self, color_name="red", line_width=4, duration=0.125):
+    def visual_bell(self, color_name="red", line_width=4, duration=0.125):
         """Show border around workarea on current screen."""
         active = self.active_window()
         nearest_geometry = self.nearest_screen_geometry(active.geometry)
