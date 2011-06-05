@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 WM = WindowManager()
 
 
-class PywoKeyPressHandler(events.KeyHandler):
+class PywoModeKeyPressHandler(events.KeyHandler):
 
     """EventHandler for "PyWO mode" keyboard shortcuts."""
 
@@ -93,7 +93,7 @@ class ModalKeyHandler(events.KeyHandler):
 
     """Support for modality.
 
-    Depending on config settings work as decorator for PywoKeyPressHandler,
+    Depending on config settings work as decorator for PywoModeKeyPressHandler,
     or separate KeyPressHandler responsible of handling key shortcuts for
     entering and exiting "Pywo mode"
 
@@ -103,7 +103,7 @@ class ModalKeyHandler(events.KeyHandler):
         events.KeyHandler.__init__(self)
         self.use_modal_mode = False
         self.in_pywo_mode = False
-        self.pywo_handler = PywoKeyPressHandler()
+        self.pywo_handler = PywoModeKeyPressHandler()
         keys = [WM.str2modifiers_keycode('Escape')]
         self.escape_handler = events.KeyHandler(key_press=self.normal_mode,
                                                 keys=keys)
@@ -111,20 +111,26 @@ class ModalKeyHandler(events.KeyHandler):
             self.set_config(config)
 
     def key_press(self, event):
+        """On key press enter or leave pywo_mode."""
+        if not (event.modifiers, event.keycode) in self.keys:
+            return
+        if self.in_pywo_mode:
+            self.normal_mode(event)
+        else:
+            self.pywo_mode(event)
+
+    def pywo_mode(self, event):
         """Enter PyWO mode.
 
         Blink to indicate entering "Pywo mode".
         Press ESC to go back to normal mode.
         
         """
-        if not (event.modifiers, event.keycode) in self.keys:
-            return
-        if self.in_pywo_mode:
-            self.normal_mode(event)
-            return
         log.debug('%s' % (event,))
-        WM.scroll_lock_led(True)
-        self.blink()
+        if self.scroll_lock_led:
+            WM.scroll_lock_led(True)
+        if self.visual_bell:
+            WM.blink(self.bell_color, self.bell_width, self.bell_duration)
         self.pywo_handler.grab_keys(WM)
         self.escape_handler.grab_keys(WM)
         self.in_pywo_mode = True
@@ -132,21 +138,12 @@ class ModalKeyHandler(events.KeyHandler):
     def normal_mode(self, event):
         """Leave PyWO mode, enter normal mode."""
         log.debug('%s' % (event,))
-        WM.scroll_lock_led(False)
-        self.blink()
-        #self.pywo_handler.ungrab_keys(WM)
-        #self.escape_handler.ungrab_keys(WM)
+        if self.scroll_lock_led:
+            WM.scroll_lock_led(False)
+        if self.visual_bell:
+            WM.blink(self.bell_color, self.bell_width, self.bell_duration)
         self.ungrab_keys(WM)
         self.in_pywo_mode = False
-
-    def blink(self):
-        """Visual bell."""
-        geo = WM.workarea_geometry
-        WM.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
-        WM.flush()
-        time.sleep(0.075)
-        WM.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
-        WM.flush()
 
     def set_config(self, config):
         """Set key mappings from config."""
@@ -159,6 +156,11 @@ class ModalKeyHandler(events.KeyHandler):
         self.numlock = config.numlock
         self.capslock = config.capslock
         self.use_modal_mode = config.modal_mode
+        self.visual_bell = config.visual_bell
+        self.bell_color = config.bell_color
+        self.bell_width = config.bell_width
+        self.bell_duration = config.bell_duration
+        self.scroll_lock_led = config.scroll_lock_led
         if not self.use_modal_mode:
             self.in_pywo_mode = True
 

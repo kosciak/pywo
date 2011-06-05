@@ -1,8 +1,22 @@
 [SETTINGS]
 ; Services settings
 keyboard_service = on
-modal_mode = off
 dbus_service = off
+
+; Modal mode settings
+modal_mode = off
+; Turn on ScrollLock LED in pywo mode
+scroll_lock_led = on
+
+; Visual bell settings
+; bell_color - name of the color
+; List of color names: http://en.wikipedia.org/wiki/X11_color_names
+; bell_width - width in pixels
+; bell_duration - value in seconds
+visual_bell = on
+bell_color = firebrick
+bell_width = 4
+bell_duration = 0.125
 
 ; NumLock and CapsLock state settings:
 ;     1/on/yes/true - work only when NumLock is on

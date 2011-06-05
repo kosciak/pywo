@@ -119,7 +119,7 @@ def _close(win):
 
 
 @register(name='blink', filter=TYPE_STATE_FILTER)
-def _blink(win):
+def _blink(win, bell_color, bell_width, bell_duration):
     """Blink window (show border around window).
     
     Works only for windows on current desktop.
@@ -129,7 +129,7 @@ def _blink(win):
     desktop = win.desktop
     if desktop != wm.desktop:
         return
-    win.blink()
+    win.blink(bell_color, bell_width, bell_duration)
 
 
 # TODO: new actions

@@ -136,6 +136,13 @@ class Config(object):
             self._config.remove_option('SETTINGS', 'ignore_actions')
         if 'grid' in self.ignored:
             self.ignored.update('grid_width', 'grid_height')
+        # Parse visual bell options
+        self.bell_color = self._config.get('SETTINGS', 'bell_color')
+        self.bell_duration = self._config.getfloat('SETTINGS', 'bell_duration')
+        self.bell_width = self._config.getint('SETTINGS', 'bell_width')
+        for option in ['bell_color', 'bell_duration', 'bell_width']:
+            self._config.remove_option('SETTINGS', option)
+        # Parse the rest of settings
         self.__parse_settings()
         self._config.remove_section('SETTINGS')
         # Parse every section

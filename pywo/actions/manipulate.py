@@ -82,7 +82,7 @@ class InAxis(filters.AND):
 
     """
 
-    def __init__(self, current, axis, adjacent=True, workarea=None):
+    def __init__(self, current, axis, adjacent=False, workarea=None):
         area = in_axis_geometry(current, axis, workarea)
         filters.AND.__init__(self,
                              filters.Overlap(workarea),
@@ -132,7 +132,7 @@ class InDirection(filters.AND):
 
     """
 
-    def __init__(self, current, direction, inclusive=False, adjacent=True,
+    def __init__(self, current, direction, inclusive=False, adjacent=False,
                  workarea=None):
         area = in_direction_geometry(current, direction, inclusive, workarea)
         print area

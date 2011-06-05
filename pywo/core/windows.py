@@ -526,14 +526,17 @@ class Window(XObject):
         mask = X.SubstructureRedirectMask
         self.send_event(data, event_type, mask)
 
-    def blink(self):
-        """For 0.075 second show border around window."""
-        geo = self.geometry
-        self.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
-        self.flush()
-        time.sleep(0.075)
-        self.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
-        self.flush()
+    def blink(self, color_name="red", line_width=4, duration=0.125):
+        """Show border around window."""
+        #geo = self.geometry
+        #self.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
+        #self.flush()
+        #time.sleep(duration)
+        #self.draw_rectangle(geo.x+2, geo.y+2, geo.width-4, geo.height-4, 4)
+        #osd.close()
+        #self.flush()
+        osd = self.osd_rectangle(self.geometry, color_name, line_width)
+        osd.blink(duration)
 
     def __eq__(self, other):
         return self.id == other.id
@@ -835,6 +838,13 @@ class WindowManager(XObject):
         if match:
             windows = self.__name_matcher(windows, match)
         return windows
+
+    def blink(self, color_name="red", line_width=4, duration=0.125):
+        """Show border around workarea on current screen."""
+        active = self.active_window()
+        nearest_geometry = self.nearest_screen_geometry(active.geometry)
+        osd = self.osd_rectangle(nearest_geometry, color_name, line_width)
+        osd.blink(duration)
 
     def __name_matcher(self, windows, match):
         """Filter and sort windows with matching name or class name."""

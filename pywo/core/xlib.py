@@ -21,12 +21,14 @@
 """xlib.py - connecting with X Server, and handling all communication."""
 
 import logging
+import time
 
 # NOTE: without import Xlib.threaded python-xlib is not thread-safe!
 from Xlib import threaded
 from Xlib import X, XK, error
 from Xlib.display import Display
 from Xlib.protocol.event import ClientMessage
+from Xlib.ext import shape
 
 from pywo.core.basic import CustomTuple, Geometry
 from pywo.core.dispatch import EventDispatcher
@@ -272,6 +274,11 @@ class XObject(object):
         return cls.has_extension('XINERAMA')
 
     @classmethod
+    def has_shape(cls):
+        """Return True if the SHAPE extension is available."""
+        return cls.has_extension('SHAPE')
+
+    @classmethod
     def screen_geometries(cls):
         """Return list of screen geometries. 
         
@@ -289,7 +296,11 @@ class XObject(object):
             return [Geometry(0, 0, root.screen_width, root.screen_height)]
 
     def draw_rectangle(self, x, y, width, height, line):
-        """Draw simple rectangle on screen."""
+        """Draw simple rectangle on screen.
+        
+        NOTE: OBSOLETE! Use osd_rectangle instead!
+        
+        """
         color = self.__DISPLAY.screen().black_pixel
         gc = self.__root.create_gc(line_width=line,
                                    join_style=X.JoinRound,
@@ -297,6 +308,16 @@ class XObject(object):
                                    function=X.GXinvert,
                                    subwindow_mode=X.IncludeInferiors,)
         self.__root.rectangle(gc, x, y, width, height)
+
+    def osd_rectangle(self, geometry, color_name, line_width):
+        """Return OSDRectangle instance."""
+        if not self.has_shape():
+            # NOTE: I believe that (almost) all modern window managers
+            #       support SHAPE Extension
+            return
+        color_map = self.__DISPLAY.screen().default_colormap
+        color = color_map.alloc_named_color(color_name)
+        return OSDRectangle(self.__DISPLAY, geometry, color, line_width)
 
     def scroll_lock_led(self, mode):
         """Turn on/off ScrollLock LED."""
@@ -315,4 +336,46 @@ class XObject(object):
     def sync(cls):
         """Flush request queue to X Server, wait until server processes them."""
         cls.__DISPLAY.sync()
+
+
+class OSDRectangle(object):
+
+    """On Screen Display rectanglei using SHAPE X Extenstion."""
+
+    def __init__(self, display, geometry, color, line_width):
+        self.display = display
+        screen = self.display.screen()
+        self.window = screen.root.create_window(geometry.x, geometry.y,
+                                                geometry.width, geometry.height,
+                                                0, screen.root_depth,
+                                                X.InputOutput, X.CopyFromParent,
+                                                background_pixel=color.pixel,
+                                                override_redirect=True)
+        pixmap = self.window.create_pixmap(geometry.width, geometry.height, 1)
+        gc = pixmap.create_gc(foreground=0, background=0,
+                              join_style=X.JoinRound, line_width=line_width)
+        pixmap.fill_rectangle(gc, 0, 0, geometry.width, geometry.height)
+        gc.change(foreground=1)
+        pixmap.rectangle(gc, line_width / 2, line_width / 2,
+                         geometry.width - line_width, 
+                         geometry.height - line_width)
+        gc.free()
+        self.window.shape_mask(shape.ShapeSet, shape.ShapeBounding, 
+                               0, 0, pixmap) 
+    def show(self):
+        """Map OSDRectangle window."""
+        self.window.map()
+        self.display.flush()
+
+    def close(self):
+        """Unmap and destroy OSDRectangle window."""
+        self.window.unmap()
+        self.window.destroy()
+        self.display.flush()
+
+    def blink(self, duration):
+        """Show OSDRectangle window, and close after given duration."""
+        self.show()
+        time.sleep(duration)
+        self.close()
 
