@@ -21,6 +21,7 @@
 """state_actions.py - PyWO actions - changing windows state."""
 
 import logging
+import time
 
 from pywo.actions import register, TYPE_FILTER, TYPE_STATE_FILTER
 from pywo.core import WindowManager, State, Mode
@@ -104,10 +105,10 @@ def _activate(win):
     Unshade, unminimize and switch to it's desktop/viewport.
     
     """
-    WM = WindowManager()
+    wm = WindowManager()
     desktop = win.desktop
-    if desktop != WM.desktop:
-        WM.set_desktop(desktop)
+    if desktop != wm.desktop:
+        wm.set_desktop(desktop)
     win.activate()
 
 
@@ -119,7 +120,15 @@ def _close(win):
 
 @register(name='blink', filter=TYPE_STATE_FILTER)
 def _blink(win):
-    """Blink window (show border around window)."""
+    """Blink window (show border around window).
+    
+    Works only for windows on current desktop.
+    
+    """
+    wm = WindowManager()
+    desktop = win.desktop
+    if desktop != wm.desktop:
+        return
     win.blink()
 
 

@@ -64,9 +64,13 @@ class SwitchCycleAction(Action):
         """Perform action on window and with given arguments."""
         from_win = WM.get_window(self.__from_win_id)
         from_geo, to_geo = from_win.geometry, win.geometry
+        from_desktop, to_desktop = from_win.desktop, win.desktop
         from_win.set_geometry(to_geo)
+        from_win.set_desktop(to_desktop)
         win.set_geometry(from_geo)
+        win.set_desktop(from_desktop)
         if self.keep_active:
+            WM.set_desktop(to_desktop)
             from_win.activate()
         else:
             win.activate()
