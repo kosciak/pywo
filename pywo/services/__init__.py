@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""services - core PyWO services classes and functions.
+"""services - package containing PyWO services related code.
 
 PyWO uses pkg_resources for services plugins discovery. 
 When writing your own actions please use 'pywo.services' entry point group. 
@@ -30,51 +30,11 @@ Check /examples/plugins/services for an example of third-party services plugin.
 
 import logging
 
+from pywo.services.core import Service
+
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
 
 
 log = logging.getLogger(__name__)
-
-
-class Service(object):
-
-    """Service interface.
-
-    Service can be a subclass of Service or a module.
-    These three methods/functions must be implemented.
-    You can't rely on the order of services to be loaded, started, or stopped.
-
-    """
-
-    def setup(self, config):
-        """Setup service using provided Config instance.
-
-        Class will be initialized (or module loaded) only once, 
-        while restart service will be stopped, set up with new config, 
-        and started again.
-        
-        """
-        raise NotImplementedError()
-
-    def start(self):
-        """Start service.
-
-        If needed new thread should be started and main loop entered.
-        All EventHandlers should be registered while started.
-
-        """
-        raise NotImplementedError()
-
-    def stop(self):
-        """Stop service and cleanup all used resources.
-
-        All threads should be stopped. 
-        All registered EventHandlers should be unregistered.
-        If PyWO is closed normally (not using KILL signal) all services will be
-        stopped, so there's no need to use other means of resource cleaning 
-        (for example registering atexit function).
-
-        """
-        raise NotImplementedError()
 

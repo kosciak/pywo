@@ -58,6 +58,36 @@ def setup_loggers(debug=False, logpath=None):
     log.addHandler(console)
 
 
+def list_windows():
+    WM = WindowManager()
+    windows = WM.windows(filters.AND(
+                filters.ExcludeType(Type.DESKTOP, Type.SPLASH),
+                filters.ExcludeState(State.SKIP_PAGER, State.SKIP_TASKBAR)))
+    for window in windows:
+        state = window.state
+        win_desktop = window.desktop
+        desktop = [win_desktop, -1][State.STICKY in state or \
+                                    win_desktop == Window.ALL_DESKTOPS]
+        if State.HIDDEN in state and \
+           not State.SHADED in state:
+            state_flags = 'i'
+        elif State.FULLSCREEN in state:
+            state_flags = 'F'
+        elif State.MAXIMIZED_HORZ in state and \
+             State.MAXIMIZED_VERT in state:
+            state_flags = 'M'
+        elif State.MAXIMIZED_VERT in state:
+            state_flags = 'V'
+        elif State.MAXIMIZED_HORZ in state:
+            state_flags = 'H'
+        else:
+            state_flags = ' '
+        # TODO: State.ABOVE, State.BELOW
+        state_flags += [' ', 's'][State.SHADED in state]# and \
+                                  #not State.HIDDEN in state]
+        print '%s %s %s %s' % (window.id, desktop, state_flags, window.name)
+
+
 def run():
     """PyWO run function."""
     # parse commandline
@@ -74,33 +104,7 @@ def run():
         daemon.setup(config)
         daemon.start()
     elif options.list_windows:
-        WM = WindowManager()
-        windows = WM.windows(filters.AND(
-                    filters.ExcludeType(Type.DESKTOP, Type.SPLASH),
-                    filters.ExcludeState(State.SKIP_PAGER, State.SKIP_TASKBAR)))
-        for window in windows:
-            state = window.state
-            win_desktop = window.desktop
-            desktop = [win_desktop, -1][State.STICKY in state or \
-                                        win_desktop == Window.ALL_DESKTOPS]
-            if State.HIDDEN in state and \
-               not State.SHADED in state:
-                state_flags = 'i'
-            elif State.FULLSCREEN in state:
-                state_flags = 'F'
-            elif State.MAXIMIZED_HORZ in state and \
-                 State.MAXIMIZED_VERT in state:
-                state_flags = 'M'
-            elif State.MAXIMIZED_VERT in state:
-                state_flags = 'V'
-            elif State.MAXIMIZED_HORZ in state:
-                state_flags = 'H'
-            else:
-                state_flags = ' '
-            # TODO: State.ABOVE, State.BELOW
-            state_flags += [' ', 's'][State.SHADED in state]# and \
-                                      #not State.HIDDEN in state]
-            print '%s %s %s %s' % (window.id, desktop, state_flags, window.name)
+        list_windows()
     elif options.help_more:
         commandline.print_help_more(config)
     elif args or options.action:

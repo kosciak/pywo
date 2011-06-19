@@ -76,7 +76,13 @@ parser.set_defaults(action=None, section=None)
 #
 parser.add_option('--help-more',
                   action='store_true', dest='help_more',
-                  help='list all available ACTIONs')
+                  help='show full help message and exit')
+parser.add_option('--actions',
+                  action='store_true', dest='help_actions',
+                  help='show all available ACTIONs')
+parser.add_option('--sections',
+                  action='store_true', dest='help_sections',
+                  help='show all available SECTIONs')
 parser.add_option('--debug', '--verbose',
                   action='store_true', dest='debug', default=False,
                   help='print debug informations')
