@@ -33,7 +33,7 @@ __author__ = "Wojciech 'KosciaK' Pietrzok"
 log = logging.getLogger(__name__)
 
 
-class _Section(object):
+class Section(object):
 
     """Section configuration."""
 
@@ -154,7 +154,7 @@ class Config(object):
         for section in self._config.sections():
             key = self.keys.pop(section, None)
             try:
-                self.sections[section.lower()] = _Section(self, section, key)
+                self.sections[section.lower()] = Section(self, section, key)
             except Exception, exc:
                 log.exception('Invalid section %s: %s', (section, exc))
             self._config.remove_section(section)

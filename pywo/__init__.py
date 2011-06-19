@@ -18,14 +18,15 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""pywo - package containing Python Window Organizer."""
+"""Python Window Organizer main package."""
 
 import logging
 
 
-__author__ = "Wojciech 'KosciaK' Pietrzok, Antti Kaihola"
+__author__ = "Wojciech 'KosciaK' Pietrzok, Antti Kaihola, Aron Griffis"
 __credits__ = ["Wojciech 'KosciaK' Pietrzok", 
-               "Antti Kaihola"]
+               "Antti Kaihola",
+               "Aron Griffis",]
 __license__ = 'GPL'
 __version__ = "0.3.0"
 __maintainer__ = "Wojciech 'KosciaK' Pietrzok"
@@ -34,7 +35,7 @@ __email__ = 'kosciak@kosciak.net'
 
 class NullHandler(logging.Handler):
 
-    """logging.Handler that does not emit anything."""
+    """`logging.Handler` that does not emit anything."""
 
     def emit(self, record):
         """Just pass."""

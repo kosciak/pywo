@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""basic.py - objects representing most basic PyWO concepts."""
+"""Objects representing most basic PyWO concepts."""
 
 import logging
 import re
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 class CustomTuple(tuple):
 
-    """Tuple that allows both x in [x, y] and [x,z] in [x, y, z]"""
+    """`Tuple` that allows both ``x in [x, y]`` and ``[x,z] in [x, y, z]``"""
 
     def __contains__(self, item):
         if hasattr(item, '__len__'):
@@ -42,7 +42,7 @@ class CustomTuple(tuple):
 
 class Gravity(object):
 
-    """Gravity point as a percentage of width and height of the window."""
+    """Gravity point as a percentage of width and height of the :class:`Geometry`."""
 
     # Predefined gravities, that can be used in config files
     __GRAVITIES = {}
@@ -62,8 +62,10 @@ class Gravity(object):
 
     def __init__(self, x, y):
         """
-        x - percentage of width
-        y - percentage of height
+        `x`
+          is percentage of width
+        `y`
+          is percentage of height
         """
         self.x = x
         self.y = y
@@ -73,22 +75,22 @@ class Gravity(object):
 
     @property
     def is_top(self):
-        """Return True if gravity is toward top."""
+        """Return ``True`` if gravity is toward top."""
         return self.y < 1.0/2 or self.is_middle
 
     @property
     def is_bottom(self):
-        """Return True if gravity is toward bottom."""
+        """Return ``True`` if gravity is toward bottom."""
         return self.y > 1.0/2 or self.is_middle
 
     @property
     def is_left(self):
-        """Return True if gravity is toward left."""
+        """Return ``True`` if gravity is toward left."""
         return self.x < 1.0/2 or self.is_middle
 
     @property
     def is_right(self):
-        """Return True if gravity is toward right."""
+        """Return ``True`` if gravity is toward right."""
         return self.x > 1.0/2 or self.is_middle
 
     def invert(self, vertical=True, horizontal=True):
@@ -102,7 +104,7 @@ class Gravity(object):
 
     @staticmethod
     def parse(gravity):
-        """Parse gravity string and return Gravity object.
+        """Parse gravity string and return :class:`Gravity` object.
 
         It can be one of predefined __GRAVITIES, or x and y values (floating
         numbers or those described in __SIZES).
@@ -130,7 +132,7 @@ class Gravity(object):
 
 class Size(object):
 
-    """Size encapsulates width and height of the object."""
+    """Encapsulates width and height of the object."""
 
     # Pattern matching simple calculations with floating numbers
     __PATTERN = re.compile('^[ 0-9\.\+-/\*]+$')
@@ -185,7 +187,7 @@ class Size(object):
     def parse(width, height):
         """Parse width and height strings.
         
-        Check parse_value for details.
+        Check :meth:`parse_value` for details.
         
         """
         width = Size.parse_value(width)
@@ -206,7 +208,7 @@ class Size(object):
 
 class Position(object):
 
-    """Position encapsulates Position of the object.
+    """Encapsulates coordinates of the object.
 
     Position coordinates starts at top-left corner of the desktop.
 
@@ -230,7 +232,7 @@ class Position(object):
 
 class Geometry(Position, Size):
 
-    """Geometry combines Size and Position of the object.
+    """Combines :class:`Size` and :class:`Position` of the object.
 
     Position coordinates (x, y) starts at top left corner of the desktop.
     (x2, y2) are the coordinates of the bottom-right corner of the object.
@@ -267,11 +269,11 @@ class Geometry(Position, Size):
     #       int() !!!
 
     def __and__(self, other):
-        """Return the intersection with another geometry.
+        """Return the intersection with another ``Geometry``.
 
-        Returns None if the geometries don't intersect.  Returns a geometry
-        with a zero width and/or height if the geometries touch each other but
-        don't intersect.
+        Returns ``None`` if the geometries don't intersect. 
+        Returns a ``Geometry`` with a zero width and/or height 
+        if the geometries touch each other but don't intersect.
 
         """
         x = max(self.x, other.x)
@@ -303,7 +305,7 @@ class Geometry(Position, Size):
 
 class Extents(object):
 
-    """Extents encapsulate Window extents (decorations)."""
+    """Encapsulates :class:`~pywo.core.windows.Window` extents (decorations)."""
 
     def __init__(self, left, right, top, bottom):
         self.top = top or 0
@@ -344,9 +346,9 @@ class Extents(object):
 
 class Strut(object):
 
-    """Information about area reserved by window (docks, panels, pagers).
+    """Information about area reserved by windows (docks, panels, pagers).
     
-    For each desktop edge keep tuple: height/width, start_x/y, end_x/y
+    For each desktop's edge there's a tuple: height/width, start_x/y, end_x/y
 
     """
 
@@ -367,32 +369,42 @@ class Strut(object):
 
 class Layout(object):
 
-    """Layout encapsulates Desktop / Viewport layout info.
+    """Encapsulates layout of desktops (or viewports).
     
-    Examples:
-    cols = 3, rows=2, orientation=ORIENTATION_HORZ, corner=CORNER_TOPLEFT
-    0 1 2
-    3 4 5
+    Examples::
 
-    cols = 3, rows=2, orientation=ORIENTATION_VERT, corner=CORNER_TOPLEFT
-    0 2 4
-    1 3 5
+      cols = 3, rows=2, orientation=ORIENTATION_HORZ, corner=CORNER_TOPLEFT
 
-    cols = 3, rows=2, orientation=ORIENTATION_HORZ, corner=CORNER_TOPRIGHT
-    2 1 0
-    5 3 4
+      0 1 2
+      3 4 5
+
+      cols = 3, rows=2, orientation=ORIENTATION_VERT, corner=CORNER_TOPLEFT
+
+      0 2 4
+      1 3 5
+
+      cols = 3, rows=2, orientation=ORIENTATION_HORZ, corner=CORNER_TOPRIGHT
+
+      2 1 0
+      5 3 4
     
     """
 
     # Orientations
     ORIENTATION_HORZ = 0 #XObject.atom('_NET_WM_ORIENTATION_HORZ')
+    """Horizontal orientation."""
     ORIENTATION_VERT = 1 #XObject.atom('_NET_WM_ORIENTATION_VERT')
+    """Vertical orientation."""
 
     # Starting corners
     CORNER_TOPLEFT = 0 #XObject.atom('_NET_WM_TOPLEFT')
+    """Starting from top-left corner."""
     CORNER_TOPRIGHT = 1 #XObject.atom('_NET_WM_TOPRIGHT')
+    """Starting from top-right corner."""
     CORNER_BOTTOMRIGHT = 2 #XObject.atom('_NET_WM_BOTTOMRIGHT')
+    """Starting from bottom-right corner."""
     CORNER_BOTTOMLEFT = 3 #XObject.atom('_NET_WM_BOTTOMLEFT')
+    """Starting from bottom-left corner."""
 
     def __init__(self, cols, rows, 
                  orientation=ORIENTATION_HORZ, corner=CORNER_TOPLEFT):

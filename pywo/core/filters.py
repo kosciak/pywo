@@ -18,7 +18,12 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""filters.py - window filters."""
+"""Window filters.
+
+All filters are callable, and accept :class:`~pywo.core.windows.Window` 
+instance as an argument.
+
+"""
 
 import logging
 
@@ -174,13 +179,21 @@ class AND(object):
         return True
 
 
-ALL_FILTER = lambda window: True # accept all windows
+ALL_FILTER = lambda window: True
+"""Accept all windows."""
 
 NORMAL_TYPE = IncludeType(Type.NORMAL, Type.NONE)
+"""Accept windows with `NORMAL` or no :class:`~pywo.core.windows.Type` set."""
 STANDARD_TYPE = ExcludeType(Type.DESKTOP, Type.DOCK, 
                             Type.SPLASH, Type.MENU, Type.TOOLBAR)
+"""Accept windows **not** with :class:`~pywo.core.windows.Type`: 
+`DESKTOP`, `DOCK`, `SPLASH`, `MENU`, `TOOLBAR`."""
 NORMAL_STATE = ExcludeState(State.MODAL, State.SHADED, State.HIDDEN,
                             State.MAXIMIZED, State.FULLSCREEN)
+"""Accept windows **not** with :class:`~pywo.core.windows.State`: 
+`MODAL`, `SHADED`, `HIDDEN`, `MAXIMIZED`, `FULLSCREEN`."""
 NORMAL = AND(NORMAL_TYPE, NORMAL_STATE)
+"""Accept windows with `NORMAL_TYPE` and `NORMAL_STATE`."""
 STANDARD = AND(STANDARD_TYPE, NORMAL_STATE)
+"""Accept windows with `STANDARD_TYPE` and `NORMAL_STATE`."""
 

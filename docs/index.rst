@@ -1,8 +1,3 @@
-.. PyWO documentation master file, created by
-   sphinx-quickstart on Wed Apr 13 21:25:31 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 PyWO |release| Documentation
 ================================
 
@@ -29,6 +24,8 @@ Configuration
 API Documentation
 -----------------
 
+:doc:`definitions`
+
 :doc:`api/index`
 
 Issues
@@ -54,5 +51,6 @@ Indices and tables
 .. toctree::
     :hidden:
  
+    definitions
     api/index
 

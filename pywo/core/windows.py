@@ -18,7 +18,16 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""windows.py - classes and functions related to windows and window managers."""
+"""Classes and functions related to windows and window managers.
+
+.. seealso::
+
+    * :doc:`/definitions` for reference of used terms.
+    * :doc:`xlib` for methods common to both :class:`Window` 
+      and :class:`WindowManager`
+
+"""
+
 
 import logging
 import time
@@ -39,18 +48,27 @@ log = logging.getLogger(__name__)
 
 class Type(object):
 
-    """Enum of window, and window manager types."""
+    """Enum of windows, and window managers types."""
 
     # Window Types
     DESKTOP = XObject.atom('_NET_WM_WINDOW_TYPE_DESKTOP')
+    """Desktop."""
     DOCK = XObject.atom('_NET_WM_WINDOW_TYPE_DOCK')
+    """Dock window (for example panels)."""
     TOOLBAR = XObject.atom('_NET_WM_WINDOW_TYPE_TOOLBAR')
+    """Toolbar window."""
     MENU = XObject.atom('_NET_WM_WINDOW_TYPE_MENU')
+    """Menu window."""
     UTILITY = XObject.atom('_NET_WM_WINDOW_TYPE_UTILITY')
+    """Utility window."""
     SPLASH = XObject.atom('_NET_WM_WINDOW_TYPE_SPLASH')
+    """Splash dialog."""
     DIALOG = XObject.atom('_NET_WM_WINDOW_TYPE_DIALOG')
+    """Modal dialog."""
     NORMAL = XObject.atom('_NET_WM_WINDOW_TYPE_NORMAL')
+    """Normal window."""
     NONE = -1
+    """No `Type` specified."""
 
     # Window manager Types
     COMPIZ = 1
@@ -70,23 +88,27 @@ class Type(object):
 
 class Hacks(object):
 
-    """List of hacks caused by EWMH, ICCCM implementation inconsistences."""
+    """List of hacks caused by EWMH, ICCCM implementation inconsistencies."""
 
     DONT_TRANSLATE_COORDS = CustomTuple([Type.COMPIZ, 
                                          Type.FLUXBOX, 
                                          Type.WINDOW_MAKER])
+    """Don't translate coordinates of the window."""
     ADJUST_GEOMETRY = CustomTuple([Type.COMPIZ, 
                                    Type.KWIN, 
                                    Type.ENLIGHTMENT, 
                                    Type.ICEWM, 
                                    Type.BLACKBOX])
+    """Adjust `Geometry`."""
     PARENT_XY = CustomTuple([Type.FLUXBOX, 
                              Type.WINDOW_MAKER])
+    """Use coordinates from window's parent."""
     CALCULATE_EXTENTS = CustomTuple([Type.BLACKBOX, 
                                      Type.ICEWM,
                                      Type.SAWFISH,
                                      Type.WINDOW_MAKER,
                                      Type.UNKNOWN])
+    """Calculate `Extents` values if not provided by window manager."""
 
 
 class State(object):
@@ -95,20 +117,35 @@ class State(object):
 
     # States described by EWMH
     MODAL = XObject.atom('_NET_WM_STATE_MODAL')
+    """Modal dialog."""
     STICKY = XObject.atom('_NET_WM_STATE_STICKY')
+    """Sticky - show on all :ref:`desktops <desktop>` 
+    / :ref:`viewports <viewport>`."""
     MAXIMIZED_VERT = XObject.atom('_NET_WM_STATE_MAXIMIZED_VERT')
+    """Maximized vertically."""
     MAXIMIZED_HORZ = XObject.atom('_NET_WM_STATE_MAXIMIZED_HORZ')
+    """Maximized horizontally."""
     MAXIMIZED = (MAXIMIZED_VERT, MAXIMIZED_HORZ)
+    """Maximized both vertically and horizontally."""
     SHADED = XObject.atom('_NET_WM_STATE_SHADED')
+    """Shaded (only title bar is visible)."""
     SKIP_TASKBAR = XObject.atom('_NET_WM_STATE_SKIP_TASKBAR')
+    """Don't show window in the taskbar."""
     SKIP_PAGER = XObject.atom('_NET_WM_STATE_SKIP_PAGER')
+    """Don't show window in the pager."""
     HIDDEN = XObject.atom('_NET_WM_STATE_HIDDEN')
+    """Hidden window (for example when iconified)."""
     FULLSCREEN = XObject.atom('_NET_WM_STATE_FULLSCREEN')
+    """Fullscreen."""
     ABOVE = XObject.atom('_NET_WM_STATE_ABOVE')
+    """Above all other windows."""
     BELOW = XObject.atom('_NET_WM_STATE_BELOW')
+    """Below all other windows."""
     DEMANDS_ATTENTION = XObject.atom('_NET_WM_STATE_DEMANDS_ATTENTION')
+    """Demands attention."""
     # Window managers specific states
     OB_UNDECORATED = XObject.atom('_OB_WM_STATE_UNDECORATED')
+    """Borderless (only in Openbox)."""
 
 
 class Mode(object):
@@ -120,8 +157,11 @@ class Mode(object):
     """
 
     UNSET = 0
+    """Unset state."""
     SET = 1
+    """Set state."""
     TOGGLE = 2
+    """Toggle state."""
 
 
 class Window(XObject):
@@ -130,13 +170,14 @@ class Window(XObject):
 
     # _NET_WM_DESKTOP returns this value when in STATE_STICKY
     ALL_DESKTOPS = 0xFFFFFFFF
+    """Visible on all :ref:`desktops <desktop>`."""
 
     def __init__(self, win_id):
         XObject.__init__(self, win_id)
 
     @property
     def type(self):
-        """Return tuple of window's type(s)."""
+        """Return tuple of window's :class:`Type`(s)."""
         # _NET_WM_WINDOW_TYPE, ATOM[]/32
         type = self.get_property('_NET_WM_WINDOW_TYPE')
         if not type:
@@ -197,9 +238,9 @@ class Window(XObject):
 
     @property
     def desktop(self):
-        """Return desktop number the window is on.
+        """Return :ref:`desktop` number the window is on.
 
-        Returns 0xFFFFFFFF when "show on all desktops"
+        Returns :const:`ALL_DESKTOPS` if window is sticky.
 
         """
         # _NET_WM_DESKTOP desktop, CARDINAL/32
@@ -209,7 +250,7 @@ class Window(XObject):
         return desktop.value[0]
 
     def set_desktop(self, desktop_id):
-        """Move window to given desktop."""
+        """Move window to given :ref:`desktop`."""
         desktop_id = int(desktop_id)
         if desktop_id < 0:
             desktop_id = 0
@@ -218,6 +259,8 @@ class Window(XObject):
                 0, 0, 0, 0]
         mask = X.PropertyChangeMask
         self.send_event(data, event_type, mask)
+
+    # TODO: viewport_position, viewport, set_viewport
 
     def __strut(self):
         """Return raw strut info."""
@@ -244,11 +287,7 @@ class Window(XObject):
 
     @property
     def strut(self):
-        """Return strut information - area reserved by Window.
-
-        Some windows (like panels, pagers, etc) can reserve space on desktop.
-
-        """
+        """Return :class:`~pywo.core.basic.Strut`."""
         strut_partial = self.__strut_partial()
         if strut_partial:
             # Try strut_partial first, with full info about reserved area
@@ -271,7 +310,7 @@ class Window(XObject):
 
     @property
     def extents(self):
-        """Return window's extents (decorations)."""
+        """Return window's :class:`~pywo.core.basic.Extents`."""
         extents = self.__extents()
         if not extents and self.wm_type in Hacks.CALCULATE_EXTENTS:
             # Hack for Blackbox, IceWM, Sawfish, Window Maker
@@ -315,10 +354,11 @@ class Window(XObject):
 
     @property
     def geometry(self):
-        """Return window's geometry.
+        """Return window's :class:`~pywo.core.basic.Geometry`.
 
         (x, y) coordinates are the top-left corner of the window.
-        Window position is relative to the left-top corner of current viewport.
+        Window position is relative to the left-top corner of 
+        current :ref:`viewport`.
         Position and size *includes* window's extents!
         Position is translated if needed.
 
@@ -344,10 +384,12 @@ class Window(XObject):
                         height + extents.vertical)
 
     def set_geometry(self, geometry, on_resize=Gravity(0, 0)):
-        """Move or resize window using provided geometry.
+        """Move or resize window. 
 
-        Postion and size must include window's extents. 
-        Position is relative to current viewport.
+        Use provided :class:`~pywo.core.basic.Geometry`, in case of resize
+        adjust position using :class:`~pywo.core.basic.Gravity`.
+        Postion (relative to current :ref:`viewport`) and size must include 
+        window's extents. 
 
         """
         # FIXME: probabely doesn't work correctly with windows with border_width
@@ -399,18 +441,20 @@ class Window(XObject):
         self._win.configure(x=x, y=y, width=width, height=height)
 
     def moveresize(self, geometry):
-        """Works like set_geometry, but using _NET_MOVERESIZE_WINDOW
+        """Works like :meth:`set_geometry`, but using ``_NET_MOVERESIZE_WINDOW``
 
         This gives finer control: 
-        - it allows to use gravity, so there are no problems with static windows
-        - x, y coordinates includes window's extents
-        - allow to move part of the window outside the workarea, while 
+
+        * it allows to use gravity, so there are no problems with static windows
+        * x, y coordinates includes window's extents
+        * allow to move part of the window outside the workarea, while 
           configure will resize window to fit workarea
 
-        WARNING! It seems that x,y coords must be unsigned ints!!! 
-                 So it is not possible to move window to the left viewport!
-                 Not sure it it is EWMH, Xlib, or python-xlib fault...
-                 But it makes _NET_MOVERESIZE_WINDOW rather useless...
+        .. warning::
+          It seems that x,y coords must be unsigned ints!!! 
+          So it is not possible to move window to the left :ref:`viewport`!
+          Not sure it it is EWMH, Xlib, or python-xlib fault...
+          But it makes _NET_MOVERESIZE_WINDOW rather useless...
 
         """
         # TODO: check the border_width issue
@@ -455,7 +499,12 @@ class Window(XObject):
     def maximize(self, mode,
                  vert=State.MAXIMIZED_VERT, 
                  horz=State.MAXIMIZED_HORZ):
-        """Maximize window (both vertically and horizontally)."""
+        """Maximize window.
+
+        If you want to maximize only horizontally use ``vert=False``
+        If you want to maximize only vertically use ``horz=False``
+
+        """
         data = [mode, 
                 horz,
                 vert,
@@ -477,7 +526,7 @@ class Window(XObject):
         self.__change_state(data)
 
     def sticky(self, mode):
-        """Make window fullscreen (if supported by window manager)."""
+        """Make window sticky (if supported by window manager)."""
         data = [mode, 
                 State.STICKY,
                 0, 0, 0]
@@ -498,7 +547,12 @@ class Window(XObject):
         self.__change_state(data)
 
     def reset(self, full=False):
-        """Unmaximize (horizontally and vertically), unshade, unfullscreen."""
+        """Reset window's state.
+
+        Uniconify, unset fullscreen, unmaximize, unshade. 
+        If ``full == True`` unset sticky, always above / below.
+
+        """
         self.iconify(Mode.UNSET)
         self.fullscreen(Mode.UNSET)
         self.maximize(Mode.UNSET)
@@ -521,7 +575,7 @@ class Window(XObject):
         self._win.destroy()
 
     def __change_state(self, data):
-        """Send _NET_WM_STATE event to the root window."""
+        """Send ``_NET_WM_STATE`` event to the root window."""
         event_type = self.atom('_NET_WM_STATE')
         mask = X.SubstructureRedirectMask
         self.send_event(data, event_type, mask)
@@ -579,20 +633,9 @@ class WindowManager(XObject):
     
     """Window Manager (or root window in X programming terms).
     
-    WindowManager's self._win refers to the root window.
-    It is a Singleton.
+    WindowManager's :attr:`_win` refers to the root window.
 
-    Terminology used:
-    Desktop  - Window Manager may create one or more "virtual" desktops, 
-               their size may be bigger than the size of the Screen.
-    Viewport - if Desktop size is bigger than Screen size Viewport is a part of
-               Desktop that is currently visible.
-    Workarea - part of Viewport that can be used by Windows. 
-               Windows with strut defined (panels, pagers, etc) may reserve space
-               on the edges of viewport.
-               Workarea size may be bigger than Screen size.
-    Screen   - physical monitor screen. If multiple monitors screens are used,
-               and Xinerama extension is available Screen shows part of Workarea.
+    `WindowManager` is a Singleton.
 
     """
 
@@ -616,7 +659,7 @@ class WindowManager(XObject):
     def name(self):
         """Return window manager's name.
 
-        '' is returned if window manager doesn't support EWMH.
+        ``''`` is returned if window manager doesn't support EWMH.
 
         """
         # _NET_SUPPORTING_WM_CHECK, WINDOW/32
@@ -652,9 +695,9 @@ class WindowManager(XObject):
 
     @property
     def desktops(self):
-        """Return number of desktops.
+        """Return number of :ref:`desktops <desktop>`.
         
-        Number of desktops may differ from desktop_layout.cols*rows
+        Number of desktops may differ from ``desktop_layout.cols*rows``
         
         """
         # _NET_NUMBER_OF_DESKTOPS, CARDINAL/32
@@ -665,7 +708,7 @@ class WindowManager(XObject):
 
     @property
     def desktop_names(self):
-        """Return list of desktop names.
+        """Return list of :ref:`desktop` names.
 
         Not all Window Managers support desktop names, in this case 
         empty list is returned.
@@ -683,13 +726,13 @@ class WindowManager(XObject):
 
     @property
     def desktop(self):
-        """Return current desktop number."""
+        """Return current :ref:`desktop` number."""
         # _NET_CURRENT_DESKTOP desktop, CARDINAL/32
         desktop = self.get_property('_NET_CURRENT_DESKTOP')
         return desktop.value[0]
 
     def set_desktop(self, num):
-        """Change current desktop."""
+        """Change current :ref:`desktop`."""
         num = int(num)
         if num < 0:
             num = 0
@@ -701,7 +744,7 @@ class WindowManager(XObject):
 
     @property
     def desktop_size(self):
-        """Return Size of current desktop."""
+        """Return Size of current :ref:`desktop`."""
         # _NET_DESKTOP_GEOMETRY width, height, CARDINAL[2]/32
         geometry = self.get_property('_NET_DESKTOP_GEOMETRY').value
         return Size(geometry[0], geometry[1])
@@ -710,7 +753,8 @@ class WindowManager(XObject):
 
     @property
     def desktop_layout(self):
-        """Return desktops layout, as set by pager."""
+        """Return :ref:`desktops <desktop>` :class:`~pywo.core.basic.Layout`, 
+        as set by pager."""
         # _NET_DESKTOP_LAYOUT, orientation, columns, rows, starting_corner 
         #                      CARDINAL[4]/32
         layout = self.get_property('_NET_DESKTOP_LAYOUT')
@@ -725,9 +769,9 @@ class WindowManager(XObject):
 
     @property
     def viewport_position(self):
-        """Return position of current viewport.
+        """Return position of current :ref:`viewport`.
 
-        Position is relative to desktop.
+        Position is relative to :ref:`desktop`.
 
         """
         # _NET_DESKTOP_VIEWPORT x, y, CARDINAL[][2]/32
@@ -736,7 +780,7 @@ class WindowManager(XObject):
         return Position(viewport[0], viewport[1])
 
     def set_viewport_position(self, x, y):
-        """Change current viewport position."""
+        """Change current :ref:`viewport` position."""
         event_type = self.atom('_NET_DESKTOP_VIEWPORT')
         data = [x, 
                 y, 
@@ -745,7 +789,7 @@ class WindowManager(XObject):
         self.send_event(data, event_type, mask)
 
     def set_viewport(self, viewport):
-        """Change current viewport (similar to set_desktop())."""
+        """Change current :ref:`viewport` (similar to :meth:`set_desktop`)."""
         if viewport < 0:
             viewport = 0
         desktop_size = self.desktop_size
@@ -756,10 +800,11 @@ class WindowManager(XObject):
 
     @property
     def viewport_layout(self):
-        """Return viewports layout, as set by pager.
+        """Return :ref:`viewports <viewport>` :class:`~pywo.core.basic.Layout`, 
+        as set by pager.
 
-        Some WindowManagers use scrolling instead of pagination, 
-        so it is possible to set viewport to any position inside desktop.
+        Some Window Managers use scrolling instead of pagination, 
+        so it is possible to set viewport to any position inside :ref:`desktop`.
 
         """
         desktop_size = self.desktop_size
@@ -770,9 +815,9 @@ class WindowManager(XObject):
 
     @property
     def workarea_geometry(self):
-        """Return geometry of current workarea (desktop without panels).
+        """Return geometry of current :ref:`workarea`.
         
-        Position is relative to current viewport.
+        Position is relative to current :ref:`viewport`.
         
         """
         # _NET_WORKAREA, x, y, width, height CARDINAL[][4]/32
@@ -785,9 +830,10 @@ class WindowManager(XObject):
 
     # TODO: Maybe add Window.current_screen()?
     def nearest_screen_geometry(self, geometry):
-        """Return geometry of the screen best matching the given rectangle.
+        """Return :class:`~pywo.core.basic.Geometry` of the :ref:`screen` 
+        best matching the given rectangle.
         
-        Position is relative to current viewport.
+        Position is relative to current :ref:`viewport`.
         
         """
         screens_by_intersection = ((screen & geometry, screen)
@@ -840,7 +886,7 @@ class WindowManager(XObject):
         return windows
 
     def visual_bell(self, color_name="red", line_width=4, duration=0.125):
-        """Show border around workarea on current screen."""
+        """Show border around :ref:`workarea` on current :ref:`screen`."""
         active = self.active_window()
         nearest_geometry = self.nearest_screen_geometry(active.geometry)
         osd = self.osd_rectangle(nearest_geometry, color_name, line_width)

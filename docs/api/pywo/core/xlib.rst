@@ -2,4 +2,10 @@
 ===========================
 
 .. automodule:: pywo.core.xlib
-    :members:
+
+    .. autoclass:: XObject
+        :members:
+
+    .. autoclass:: OSDRectangle
+        :members:
+

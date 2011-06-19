@@ -18,9 +18,9 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""core - wrapper around Xlib.
+"""High level wrapper around Xlib.
 
-core package encapsulates all comunication with X Server.
+`core` package encapsulates all comunication with X Server.
 It contains objects representing Window Manager, Windows, and other basic
 concepts needed for repositioning and resizing windows (size, position,
 extents, gravity, etc).

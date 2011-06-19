@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""xlib.py - connecting with X Server, and handling all communication."""
+"""Connection with X Server, and handling all communication."""
 
 import logging
 import time
@@ -73,8 +73,9 @@ class XObject(object):
 
     def __init__(self, win_id=None):
         """
-        win_id - id of the window to be created, if no id assume it's 
-                 Window Manager (root window)
+        `win_id`
+          id of the window to be created, if no id assume 
+          it's Window Manager (root window).
         """
         self.__root = self.__DISPLAY.screen().root
         self._root_id = self.__root.id
@@ -89,7 +90,12 @@ class XObject(object):
 
     @classmethod
     def set_wm_type(cls, wm_type):
-        """Set window manager's type."""
+        """Set window manager's type.
+        
+        This method should not be called directly. 
+        Use :meth:`~pywo.core.windows.WindowManager.update_type` instead.
+        
+        """
         cls.__WM_TYPE = wm_type
 
     @property
@@ -108,7 +114,7 @@ class XObject(object):
         return cls.__DISPLAY.get_atom_name(atom)
 
     def get_property(self, name):
-        """Return property (None if there's no such property)."""
+        """Return property (``None`` if there's no such property)."""
         atom = self.atom(name)
         property = self._win.get_full_property(atom, 0)
         return property
@@ -129,7 +135,7 @@ class XObject(object):
     def unregister(self, event_handler=None):
         """Unregister event handler(s) and update event mask.
         
-        If event_handler is None all handlers will be unregistered.
+        If event_handler is ``None`` all handlers will be unregistered.
 
         """
         masks = self.__EVENT_DISPATCHER.unregister(self, event_handler)
@@ -193,7 +199,7 @@ class XObject(object):
         """Return translated coordinates.
         
         Untranslated coordinates are relative to window.
-        Translated coordinates are relative to desktop.
+        Translated coordinates are relative to :ref:`viewport`.
 
         """
         return self._win.translate_coords(self.__root, x, y)
@@ -226,12 +232,14 @@ class XObject(object):
 
     @classmethod
     def str2modifiers_keycode(cls, code, key=''):
-        """Convert key as string(s) into (modifiers, keycode) pair.
+        """Convert `code`, `key` as string(s) into (modifiers, keycode) pair.
         
         There must be both modifier(s) and key persent. If you send both
         modifier(s) and key in one string, they must be separated using '-'. 
         Modifiers must be separated using '-'.
+
         Keys are case insensitive.
+
         If you want to use upper case use Shift modifier.
         Only modifiers defined in __KEY_MODIFIERS are valid.
         For example: "Ctrl-A", "Super-Alt-x"
@@ -249,9 +257,10 @@ class XObject(object):
 
     @classmethod
     def keycode2str(cls, modifiers, keycode):
-        """Convert key as (modifiers, keycode) pair into string.
+        """Convert `modifiers`, `keycode` pair into string.
         
-        Works ONLY for already registered keycodes!
+        .. note::
+            Works ONLY for already registered keycodes!
         
         """
         key = []
@@ -270,17 +279,17 @@ class XObject(object):
 
     @classmethod
     def has_xinerama(cls):
-        """Return True if the Xinerama extension is available."""
+        """Return ``True`` if the Xinerama extension is available."""
         return cls.has_extension('XINERAMA')
 
     @classmethod
     def has_shape(cls):
-        """Return True if the SHAPE extension is available."""
+        """Return ``True`` if the SHAPE extension is available."""
         return cls.has_extension('SHAPE')
 
     @classmethod
     def screen_geometries(cls):
-        """Return list of screen geometries. 
+        """Return list of :ref:`screen` :class:`~pywo.core.basic.Geometry`. 
         
         If Xinerama extension is not avaialbe fallback to non-Xinerama.
         
@@ -298,7 +307,8 @@ class XObject(object):
     def draw_rectangle(self, x, y, width, height, line):
         """Draw simple rectangle on screen.
         
-        NOTE: OBSOLETE! Use osd_rectangle instead!
+        .. note:
+          OBSOLETE! Use osd_rectangle instead!
         
         """
         color = self.__DISPLAY.screen().black_pixel
@@ -310,7 +320,7 @@ class XObject(object):
         self.__root.rectangle(gc, x, y, width, height)
 
     def osd_rectangle(self, geometry, color_name, line_width):
-        """Return OSDRectangle instance."""
+        """Return :class:`OSDRectangle` instance."""
         if not self.has_shape():
             # NOTE: I believe that (almost) all modern window managers
             #       support SHAPE Extension
@@ -319,9 +329,9 @@ class XObject(object):
         color = color_map.alloc_named_color(color_name)
         return OSDRectangle(self.__DISPLAY, geometry, color, line_width)
 
-    def scroll_lock_led(self, mode):
+    def scroll_lock_led(self, on):
         """Turn on/off ScrollLock LED."""
-        if mode:
+        if on:
             led_mode = X.LedModeOn
         else:
             led_mode = X.LedModeOff
@@ -364,18 +374,18 @@ class OSDRectangle(object):
                                0, 0, pixmap) 
 
     def show(self):
-        """Map OSDRectangle window."""
+        """Map `OSDRectangle` window."""
         self.window.map()
         self.display.flush()
 
     def close(self):
-        """Unmap and destroy OSDRectangle window."""
+        """Unmap and destroy `OSDRectangle` window."""
         self.window.unmap()
         self.window.destroy()
         self.display.flush()
 
     def blink(self, duration):
-        """Show OSDRectangle window, and close after given duration."""
+        """Show `OSDRectangle` window, and close after given `duration`."""
         self.show()
         time.sleep(duration)
         self.close()
