@@ -31,12 +31,6 @@ API Documentation
 
 :doc:`api/index`
 
-.. toctree::
-    :maxdepth: 2
- 
-    concepts
-    api/index
-
 Issues
 ------
 
@@ -55,4 +49,10 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. toctree::
+    :hidden:
+ 
+    api/index
 

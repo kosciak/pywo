@@ -4,4 +4,3 @@
 .. automodule:: pywo.actions.manager
     :members:
 
-
