@@ -81,6 +81,14 @@ def _fullscreen(win, mode=Mode.TOGGLE):
 def _sticky(win, mode=Mode.TOGGLE):
     """Change sticky (stay on all desktops/viewports) property."""
     win.sticky(mode)
+    win_desktop = win.desktop
+    if not win_desktop == win.ALL_DESKTOPS and \
+       (mode == Mode.SET or mode == Mode.TOGGLE):
+        win.set_desktop(win.ALL_DESKTOPS)
+    elif win_desktop == win.ALL_DESKTOPS and \
+       (mode == Mode.UNSET or mode == Mode.TOGGLE):
+        wm = WindowManager()
+        win.set_desktop(wm.desktop)
 
 
 @register(name='above', filter=TYPE_FILTER)
