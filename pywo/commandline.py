@@ -168,8 +168,7 @@ def print_help():
     parser.print_help()
 
 
-def print_help_more(config):
-    """Print extended help."""
+def get_action_descriptions():
     action_descriptions = []
     for action in sorted(actions.manager.get_all(), 
                          key=lambda action: action.name):
@@ -181,10 +180,36 @@ def print_help_more(config):
         if action.optional_args:
             line += '[%s]' % ', '.join(action.optional_args).upper()
         action_descriptions.append(line)
+    return action_descriptions
+
+
+def get_section_descriptions(config):
+    section_descriptions = []
+    #for name, data in sorted(config.sections, reverse=True):
+    for name, data in config.sections.items():
+        line = '''%s
+  dir: (%s), pos: (%s), grav: (%s)
+  widths:  %s
+  heights: %s''' % \
+        (name, 
+         ', '.join(['%.2f' % data.direction.x, '%.2f' % data.direction.y]), 
+         ', '.join(['%.2f' % data.position.x, '%.2f' % data.position.y]), 
+         ', '.join(['%.2f' % data.gravity.x, '%.2f' % data.gravity.y]), 
+         ', '.join(['%.2f' % size for size in data.size.width]), 
+         ', '.join(['%.2f' % size for size in data.size.height]), 
+        )
+        section_descriptions.append(line)
+    return sorted(section_descriptions)
+
+
+def print_help_more(config):
+    """Print extended help."""
+    action_descriptions = get_action_descriptions()
     actions_list = OptionGroup(parser, 'ACTION', '\n'.join(action_descriptions))
     parser.add_option_group(actions_list)
+    section_descriptions = get_section_descriptions(config)
     sections_list = OptionGroup(parser, 'SECTION', 
-                                '\n'.join(sorted(config.sections, reverse=True)))
+                                '\n'.join(section_descriptions))
     parser.add_option_group(sections_list)
     parser.add_option_group(gravity)
     parser.add_option_group(w_h)

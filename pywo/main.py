@@ -107,6 +107,10 @@ def run():
         list_windows()
     elif options.help_more:
         commandline.print_help_more(config)
+    elif options.help_actions:
+        print '\n'.join(commandline.get_action_descriptions())
+    elif options.help_sections:
+        print '\n'.join(commandline.get_section_descriptions(config))
     elif args or options.action:
         try:
             actions.perform(options, args, config)
