@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""core.py - core PyWO services classes and functions."""
+"""Core PyWO services classes and functions."""
 
 import logging
 
@@ -33,8 +33,9 @@ class Service(object):
 
     """Service interface.
 
-    Service can be a subclass of Service or a module.
+    Service can be a subclass of `Service` or a module.
     These three methods/functions must be implemented.
+
     You can't rely on the order of services to be loaded, started, or stopped.
 
     """
@@ -42,8 +43,8 @@ class Service(object):
     def setup(self, config):
         """Setup service using provided Config instance.
 
-        Class will be initialized (or module loaded) only once, 
-        while restart service will be stopped, set up with new config, 
+        Class will be initialized (or module loaded) only once. 
+        On restart service will be stopped, set up with new config, 
         and started again.
         
         """
@@ -53,7 +54,8 @@ class Service(object):
         """Start service.
 
         If needed new thread should be started and main loop entered.
-        All EventHandlers should be registered while started.
+        All :class:`pywo.core.events.EventHandler` should be 
+        registered in `start` method.
 
         """
         raise NotImplementedError()
@@ -61,11 +63,14 @@ class Service(object):
     def stop(self):
         """Stop service and cleanup all used resources.
 
-        All threads should be stopped. 
-        All registered EventHandlers should be unregistered.
-        If PyWO is closed normally (not using KILL signal) all services will be
-        stopped, so there's no need to use other means of resource cleaning 
-        (for example registering atexit function).
+        .. note::
+          All threads should be stopped. 
+          All registered :class:`pywo.core.events.EventHandler` 
+          should be unregistered.
+
+          If PyWO is closed normally (not using KILL signal) all services will be
+          stopped, so there's no need to use other means of resource cleaning 
+          (for example registering ``atexit`` function).
 
         """
         raise NotImplementedError()

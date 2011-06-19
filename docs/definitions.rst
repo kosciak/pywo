@@ -30,3 +30,16 @@ Screen
 ------------------
 Physical monitor screen. If multiple monitors screens are used,
 and Xinerama extension is available :ref:`screen` shows part of :ref:`workarea`.
+
+.. _action:
+
+Action
+-----------------
+Callable (function or :class:`pywo.actions.core.Action` instance) that changes window(s) or window manager state. Form simple ones like changing windows state (maximizing, shading), to complex ones like putting on the grid.
+
+.. _service:
+
+Service
+-----------------
+Background task providing additional features, or means of communication with PyWO. Built in services are `deamon` allowing PyWO to be run as daemon, `keyboard_service` responsible for handling keyboard shortcuts, and `dbus_service` allowing communication with running PyWO daemon using D-Bus.
+

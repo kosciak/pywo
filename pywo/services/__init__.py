@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""services - package containing PyWO services related code.
+"""PyWO services related code.
 
 PyWO uses pkg_resources for services plugins discovery. 
 When writing your own actions please use 'pywo.services' entry point group. 

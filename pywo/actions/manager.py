@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""manager.py - load, register, and manage actions."""
+"""Load, register, and manage PyWO actions."""
 
 import logging
 import os.path
@@ -60,7 +60,7 @@ def load_local():
 
 
 def load_plugins():
-    """Load third party pywo.actions plugins."""
+    """Load third party ``pywo.actions`` plugins."""
     log.debug('Loading third-party actions modules...')
     try:
         from pkg_resources import iter_entry_points
@@ -85,7 +85,7 @@ def load():
 
 
 def get(name):
-    """Return action with given name or None."""
+    """Return action with given name or ``None``."""
     if not __LOADED:
         load()
     return __ACTIONS.get(name, None)

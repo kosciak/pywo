@@ -39,6 +39,11 @@ class EventDispatcher(threading.Thread):
     after first EventHandler is registered, and stopped when there are no
     handlers left.
 
+    .. note::
+        This class should not be used directly. Use appropriate methods in 
+        :class:`pywo.core.xlib.XObject`, :class:`pywo.core.windows.Window`, or
+        :class:`pywo.core.windows.WindowManager`.
+
     """
 
     def __init__(self, display):

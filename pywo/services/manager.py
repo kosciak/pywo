@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""manager.py - load, and manage services."""
+"""Load, and manage services."""
 
 import logging
 import os.path
@@ -56,7 +56,7 @@ def load_local(config):
 
 
 def load_plugins(config):
-    """Load third party pywo.services plugins."""
+    """Load third party ``pywo.services`` plugins."""
     log.debug('Loading third-party services modules...')
     try:
         from pkg_resources import iter_entry_points

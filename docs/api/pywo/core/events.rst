@@ -2,7 +2,12 @@
 ===========================
 
 .. automodule:: pywo.core.events
-    :members: KeyEvent, KeyHandler, FocusEvent, FocusHandler, DestroyNotifyEvent, DestroyNotifyHandler, CreateNotifyEvent, CreateNotifyHandler, PropertyNotifyEvent, PropertyNotifyHandler, ConfigureNotifyEvent, ConfigureNotifyHandler
+    :members: KeyEvent, KeyHandler, 
+              FocusEvent, FocusHandler, 
+              DestroyNotifyEvent, DestroyNotifyHandler, 
+              CreateNotifyEvent, CreateNotifyHandler, 
+              PropertyNotifyEvent, PropertyNotifyHandler, 
+              ConfigureNotifyEvent, ConfigureNotifyHandler
     :show-inheritance:
 
     .. autoclass:: Event

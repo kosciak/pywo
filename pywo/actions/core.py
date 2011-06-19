@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""core.py - core PyWO actions classes and functions."""
+"""Core PyWO actions classes and functions."""
 
 import logging
 
@@ -64,6 +64,16 @@ class Action(object):
     # TODO: implement pre and post action_hooks
 
     def __init__(self, name='', doc='', filter=None, unshade=False):
+        """
+        `name`
+            name of the Action
+        `doc`
+            docstring
+        `filter`
+            callable used to filter windows (:doc:`/api/pywo/core/filters`)
+        `unshade`
+            unshade window when performing action
+        """
         self.name = name
         self.__doc__ = doc or self.__doc__
         self.__filter = filter or filters.ALL_FILTER
@@ -75,7 +85,7 @@ class Action(object):
     def perform(self, win, **kwargs):
         """Perform action on window and with given arguments.
         
-        This method must be implemented by Action subclasses.
+        This method must be implemented by `Action` subclasses.
         
         """
         raise NotImplementedError()
@@ -89,13 +99,13 @@ class Action(object):
 
     @property
     def need_section(self):
-        """Return True if Action needs section related data to be performed."""
+        """Return ``True`` if `Action` needs section related data."""
         return 'direction' in self.args or \
                'position' in self.args or \
                'gravity' in self.args
 
     def get_kwargs(self, config, section=None, options=None):
-        """Get from given objects values needed for Action to be performed."""
+        """Get from given objects values needed for `Action` to be performed."""
         kwargs = {}
         for arg in self.args:
             for obj in [options, section, config]:
@@ -138,7 +148,7 @@ class Action(object):
         # TODO: call post_action_hooks
 
     def register(self):
-        """Register instance of Action as PyWO action."""
+        """Register instance of `Action` as PyWO action."""
         manager.register(self)
 
     def __str__(self):
@@ -162,7 +172,18 @@ class SimpleActionWrapper(Action):
 
 
 def register(name, filter=filters.ALL_FILTER, unshade=False):
-    """Register function or Action subclass as PyWO action with given name."""
+    """Register function or :class:`Action` subclass with given name.
+
+    `name`
+        name of the Action
+    `filter`
+        callable used to filter windows (:doc:`/api/pywo/core/filters`)
+    `unshade`
+        unshade window when performing action
+
+    This fuction can be used as an decorator.
+    
+    """
     def register_action(action):
         """Registers action."""
         if isinstance(action, type) and issubclass(action, Action):
@@ -175,7 +196,8 @@ def register(name, filter=filters.ALL_FILTER, unshade=False):
 
 
 def get_current_workarea(window, xinerama):
-    """Return geometry of the workarea or nearest screen."""
+    """Return :class:`~pywo.core.basic.Geometry` 
+    of the :ref:`workarea` or nearest :ref:`screen`."""
     if xinerama:
         return WM.nearest_screen_geometry(window.geometry)
     else:

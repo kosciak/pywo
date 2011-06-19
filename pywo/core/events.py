@@ -135,7 +135,9 @@ class KeyHandler(EventHandler):
                  keys=None, numlock=0, capslock=0):
         """
         `key_press`
-            function that will handle events 
+            function that will handle key press events 
+        `key_release`
+            function that will handle key release events 
         `keys`
             list of (mask, keycode) pairs
         `numlock`

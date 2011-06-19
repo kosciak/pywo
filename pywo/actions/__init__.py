@@ -18,7 +18,9 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""actions - package containing PyWO actions related code.
+"""PyWO actions related code.
+
+Actions change windows or window manager state.
 
 PyWO uses pkg_resources for actions plugins discovery. 
 When writing your own actions please use 'pywo.actions' entry point group, 

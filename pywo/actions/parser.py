@@ -18,10 +18,10 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""parser.py - parses actions from commandline.
+"""Parse actions from commandline.
 
-Module's functions mimics subset of optparse.OptionParser methods, 
-so it can be used like real OptionParser instance.
+Module's functions mimics subset of ``optparse.OptionParser`` methods, 
+so it can be used like real `OptionParser` instance.
 
 """
 
@@ -44,7 +44,7 @@ THREAD_DATA = threading.local()
 
 class ParserException(Exception):
 
-    """Exception raised by Parser.parse_args()."""
+    """Exception raised by :func:`parse_args`."""
 
     def __init__(self, msg):
         self.msg = msg
@@ -57,7 +57,7 @@ class OptionParser(optparse.OptionParser):
 
     """OptionParser that raises exception on errors.
     
-    This class should not be used directly, use parse_args instead.
+    This class should not be used directly, use :func:`parse_args` instead.
     
     """
 
@@ -70,11 +70,12 @@ class OptionParser(optparse.OptionParser):
             self.add_option(option)
 
     def error(self, msg):
-        """Raise ParserException instead of printing on console and exiting."""
+        """Raise :class:`ParserException`."""
         raise ParserException(msg)
 
 
 option_list = OptionParser.OPTION_LIST
+"""List of options."""
 
 
 def add_option(*args, **kwargs):
@@ -86,8 +87,8 @@ def add_option(*args, **kwargs):
 def parse_args(args, values=None):
     """Parse arguments.
 
-    args can be both string (utf-8 encoded) or list of strings
-    To provide thread safety there's separate OptionParser instance for 
+    `args` can be both string (utf-8 encoded) or list of strings
+    To provide thread safety there's separate `OptionParser` instance for 
     every thread.
 
     """

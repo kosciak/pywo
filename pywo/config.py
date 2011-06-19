@@ -18,7 +18,7 @@
 # along with PyWO.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-"""config.py - loading and storing configuration data."""
+"""Loading and storing configuration data."""
 
 import logging
 import os
@@ -39,8 +39,10 @@ class Section(object):
 
     def __init__(self, config, section, key):
         self.key = key
+        """Section key or key modifier."""
         data = dict(config._config.items(section))
         self.ignored_actions = set()
+        """List of ignored actions."""
         if 'ignore_actions' in data:
             ignored_actions = data.get('ignore_actions', '').split(', ')
             self.ignored_actions.update(ignored_actions)
@@ -49,16 +51,20 @@ class Section(object):
             self.ignored_actions.update(['grid_width', 'grid_height'])
 
         self.gravity = Gravity.parse(data.get('gravity', ''))
+        """Gravity."""
         self.direction = Gravity.parse(data.get('direction', ''))
+        """Direction of window movement."""
         if not self.direction:
             self.direction = self.gravity
         self.position  = Gravity.parse(data.get('position', ''))
+        """Position position on :ref:`workarea`."""
         if not self.position:
             self.position = self.gravity
         elif self.position and not self.gravity:
             self.gravity = self.position
         self.size = Size.parse(data.get('widths', ''), 
                                data.get('heights', ''))
+        """Window size(s)."""
 
 
 class Config(object):
@@ -72,17 +78,22 @@ class Config(object):
     def __init__(self, filename=''):
         self._config = ConfigParser()
         self.keys = {} # {'action_name': 'key', }
+        """Dict of action names and keys."""
         self.ignored_actions = set()
+        """List of ignored actions."""
         self.sections = {} # {section.name: section, }
+        """Dict of :class:`Section` per name."""
         self.aliases = {} # {alias: section|action, }
+        """Dict of section/action aliases."""
         self.filename = filename
+        """Configuration file."""
         self.bell_color = 'white'
         self.bell_duration = 0
         self.bell_width = 0
         self.load(filename)
 
     def __parse_settings(self):
-        """Parse SETTINGS section of the config file"""
+        """Parse `SETTINGS` section of the config file"""
         for key, value in self._config.items('SETTINGS'):
             value = value.lower()
             if value in ['1', 'yes', 'on', 'true']:
@@ -162,7 +173,7 @@ class Config(object):
         log.debug('Loaded configuration file')
 
     def section(self, name):
-        """Return Section with given name."""
+        """Return :class:`Section` with given name."""
         name = self.alias(name)
         return self.sections.get(name.lower(), None)
 
