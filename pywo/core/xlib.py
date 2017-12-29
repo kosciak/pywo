@@ -21,17 +21,16 @@
 """Connection with X Server, and handling all communication."""
 
 import logging
-import time
 
 # NOTE: without import Xlib.threaded python-xlib is not thread-safe!
 from Xlib import threaded
 from Xlib import X, XK, error
 from Xlib.display import Display
 from Xlib.protocol.event import ClientMessage
-from Xlib.ext import shape
 
 from pywo.core.basic import CustomTuple, Geometry
 from pywo.core.dispatch import EventDispatcher
+from pywo.core.osd import OSDRectangle
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok, Antti Kaihola"
@@ -352,56 +351,4 @@ class XObject(object):
     def sync(cls):
         """Flush request queue to X Server, wait until server processes them."""
         cls.__DISPLAY.sync()
-
-
-class OSDRectangle(object):
-
-    """On Screen Display rectangle using SHAPE X Extenstion."""
-
-    def __init__(self, display, geometry, color, line_width):
-        self.display = display
-        screen = self.display.screen()
-        self.window = screen.root.create_window(geometry.x, geometry.y,
-                                                geometry.width, geometry.height,
-                                                0, screen.root_depth,
-                                                X.InputOutput, X.CopyFromParent,
-                                                background_pixel=color.pixel,
-                                                override_redirect=True)
-        pixmap = self.window.create_pixmap(geometry.width, geometry.height, 1)
-        gc = pixmap.create_gc(foreground=0, background=0,
-                              join_style=X.JoinRound, line_width=line_width)
-        pixmap.fill_rectangle(gc, 0, 0, geometry.width, geometry.height)
-        gc.change(foreground=1)
-        pixmap.rectangle(gc, line_width / 2, line_width / 2,
-                         geometry.width - line_width, 
-                         geometry.height - line_width)
-        gc.free()
-
-        if hasattr(shape, 'ShapeSet'):
-            shape_set = shape.ShapeSet
-        elif hasattr(shape, 'SO'):
-            shape_set = shape.SO.Set
-        if hasattr(shape, 'ShapeBounding'):
-            shape_bounding = shape.ShapeBounding
-        elif hasattr(shape, 'SO'):
-            shape_bounding = shape.SK.Bounding
-        self.window.shape_mask(shape_set, shape_bounding, 
-                               0, 0, pixmap) 
-
-    def show(self):
-        """Map `OSDRectangle` window."""
-        self.window.map()
-        self.display.flush()
-
-    def close(self):
-        """Unmap and destroy `OSDRectangle` window."""
-        self.window.unmap()
-        self.window.destroy()
-        self.display.flush()
-
-    def blink(self, duration):
-        """Show `OSDRectangle` window, and close after given `duration`."""
-        self.show()
-        time.sleep(duration)
-        self.close()
 
