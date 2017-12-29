@@ -113,6 +113,12 @@ class XObject(object):
         """Return atom's name."""
         return cls.__DISPLAY.get_atom_name(atom)
 
+    def list_properties(self):
+        names = []
+        for atom in self._win.list_properties():
+            names.append(self.atom_name(atom))
+        return names
+
     def get_property(self, name):
         """Return property (``None`` if there's no such property)."""
         atom = self.atom(name)
@@ -370,7 +376,16 @@ class OSDRectangle(object):
                          geometry.width - line_width, 
                          geometry.height - line_width)
         gc.free()
-        self.window.shape_mask(shape.ShapeSet, shape.ShapeBounding, 
+
+        if hasattr(shape, 'ShapeSet'):
+            shape_set = shape.ShapeSet
+        elif hasattr(shape, 'SO'):
+            shape_set = shape.SO.Set
+        if hasattr(shape, 'ShapeBounding'):
+            shape_bounding = shape.ShapeBounding
+        elif hasattr(shape, 'SO'):
+            shape_bounding = shape.SK.Bounding
+        self.window.shape_mask(shape_set, shape_bounding, 
                                0, 0, pixmap) 
 
     def show(self):
