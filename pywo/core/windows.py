@@ -183,8 +183,11 @@ class Window(XObject):
     def __extents(self):
         """Return raw extents info."""
         # _NET_FRAME_EXTENTS, left, right, top, bottom, CARDINAL[4]/32
+        extents = self.get_property('_GTK_FRAME_EXTENTS')
+        if extents:
+            # NOTE: Must be negative to work correctly!
+            return (val*-1 for val in extents.value)
         extents = self.get_property('_NET_FRAME_EXTENTS')
-        ## NOTE:          self.get_property('_GTK_FRAME_EXTENTS')
         if extents:
             return extents.value
         else: 
@@ -281,6 +284,10 @@ class Window(XObject):
         extents = self.extents
         x = geometry.x
         y = geometry.y
+        if extents.horizontal < 0 and extents.vertical < 0:
+            # NOTE: If both extents.horizonta and .vertical are negative it must be GTK Frame Extent
+            x += extents.left
+            y += extents.top
         width = geometry.width - extents.horizontal
         height = geometry.height - extents.vertical
         geometry_size = (width, height)
