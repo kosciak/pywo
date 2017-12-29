@@ -22,7 +22,7 @@
 
 import logging
 
-from pywo.core import Window, WindowManager, Type, State, Mode
+from pywo.core import Window, WindowManager, State, Mode
 from pywo.core import filters
 from pywo.actions import manager
 

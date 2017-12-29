@@ -1,0 +1,29 @@
+*developmnet version*
+  * refactoring
+  * support for GnomeShell
+
+*0.3*
+  * fixed support for Fluxbox, Blackbox, IceWM, Sawfish, Window Maker, pekwm
+  * fixed handling of sticky windows
+  * added `capslock` setting
+  * grid_2x2 and grid_3x2 ignore grid_height action by default
+  * new actions: activate, close, sticky, shade, fullscreen, maximize(_vert|_horz), iconify, above, below
+  * aliases for action and section names
+  * D-Bus communication with PyWO
+  * matching windows by name, and classname
+  * commandline support (similar to wmctrl)
+  * distribution as Python package (easy_install / pip support)
+  * major refactoring - it is now possible to use pywo as wrapper for Xlib library
+  * support for third-party plugins
+  * modal mode - for use without keypad
+
+*0.2*
+  * added switch and cycle actions
+  * added `ignore` options for `[SETTINGS]` section and layout definition sections
+
+*0.1.1*
+  * changed license to GPLv3 (I've noticed that python-xlib is under GPLv2 so it seems I can't use Apache License 2.0)
+  * some changes in events module
+
+*0.1*
+  * first release

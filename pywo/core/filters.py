@@ -27,7 +27,7 @@ instance as an argument.
 
 import logging
 
-from pywo.core import Window, WindowManager, Type, State
+from pywo.core import Window, WindowManager, WindowType, State
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
@@ -182,11 +182,11 @@ class AND(object):
 ALL_FILTER = lambda window: True
 """Accept all windows."""
 
-NORMAL_TYPE = IncludeType(Type.NORMAL, Type.NONE)
-"""Accept windows with `NORMAL` or no :class:`~pywo.core.windows.Type` set."""
-STANDARD_TYPE = ExcludeType(Type.DESKTOP, Type.DOCK, 
-                            Type.SPLASH, Type.MENU, Type.TOOLBAR)
-"""Accept windows **not** with :class:`~pywo.core.windows.Type`: 
+NORMAL_TYPE = IncludeType(WindowType.NORMAL, WindowType.NONE)
+"""Accept windows with `NORMAL` or no :class:`~pywo.core.windows.WindowType` set."""
+STANDARD_TYPE = ExcludeType(WindowType.DESKTOP, WindowType.DOCK, 
+                            WindowType.SPLASH, WindowType.MENU, WindowType.TOOLBAR)
+"""Accept windows **not** with :class:`~pywo.core.windows.WindowType`: 
 `DESKTOP`, `DOCK`, `SPLASH`, `MENU`, `TOOLBAR`."""
 NORMAL_STATE = ExcludeState(State.MODAL, State.SHADED, State.HIDDEN,
                             State.MAXIMIZED, State.FULLSCREEN)

@@ -28,7 +28,7 @@ __credits__ = ["Wojciech 'KosciaK' Pietrzok",
                "Antti Kaihola",
                "Aron Griffis",]
 __license__ = 'GPL'
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __maintainer__ = "Wojciech 'KosciaK' Pietrzok"
 __email__ = 'kosciak@kosciak.net'
 

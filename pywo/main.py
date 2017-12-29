@@ -28,7 +28,7 @@ import tempfile
 
 from pywo import actions, commandline
 from pywo.config import Config
-from pywo.core import Window, WindowManager, State, Type
+from pywo.core import Window, WindowManager, State, WindowType
 from pywo.core import filters
 from pywo.services import daemon
 
@@ -61,7 +61,7 @@ def setup_loggers(debug=False, logpath=None):
 def list_windows():
     WM = WindowManager()
     windows = WM.windows(filters.AND(
-                filters.ExcludeType(Type.DESKTOP, Type.SPLASH),
+                filters.ExcludeType(WindowType.DESKTOP, WindowType.SPLASH),
                 filters.ExcludeState(State.SKIP_PAGER, State.SKIP_TASKBAR)))
     for window in windows:
         state = window.state

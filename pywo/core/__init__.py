@@ -31,7 +31,9 @@ extents, gravity, etc).
 import logging
 
 from pywo.core.basic import Gravity, Size, Position, Geometry, Extents, Layout
-from pywo.core.windows import Type, State, Mode, Window, WindowManager
+from pywo.core.enums import WindowType, ManagerType, State, Mode
+from pywo.core.windows import Window
+from pywo.core.manager import WindowManager
 
 
 __author__ = "Wojciech 'KosciaK' Pietrzok"
